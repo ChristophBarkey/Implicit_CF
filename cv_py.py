@@ -76,7 +76,7 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def hyperp_tuning(self, test, train, param_space, model_class, eval):
+    def hyperp_tuning(self, test, train, param_space, model_class):
         """" Hyperparameter tuning method for implicit models
 
         Parameters
@@ -108,15 +108,12 @@ class CrossValidation:
         
         #iterate through all param combinations
         for r in result:
+
+            #get model with parameters as indicated
             model = self.get_model(r, model_class)
             
-            if eval == 'cv':
-                #crossvalidation with method from CrossValidation
-                res = self.k_fold_eval(test, train, model, return_type='mean')
-            
-            if eval == 'split':
-                #simple train/test split, applying evaluate_model method from CrossValidation
-                res = self.evaluate_model(model, train, test, 10)
+            #evaluate model on train/test with k_fold_eval
+            res = self.k_fold_eval(test, train, model, return_type='mean')
 
             #create final frame in the first iter
             if first_iter == True:
@@ -135,7 +132,7 @@ class CrossValidation:
         return ret
 
 
-    def get_model(p, model_class):
+    def get_model(self, p, model_class):
         """"Method to get model according to class and params
         
         Parameters
