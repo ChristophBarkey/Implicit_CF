@@ -75,6 +75,9 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
+    def test(self):
+        print('test')
+
 
 
 # %%
