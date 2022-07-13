@@ -95,9 +95,6 @@ class CrossValidation:
                 factors, learning_rate, regularization, iterations
         model_class : str
             iALS, LMF or BPR
-        eval : str
-            evaluation protocol
-            'cv' for k-fold crossvalidation, 'split' for one split
         """
 
         # prepare parameter space dict
@@ -129,6 +126,7 @@ class CrossValidation:
 
         #compose frame of parameter combinations and respective metrics 
         ret = pd.concat((param_df.reset_index(drop=True), metrics_frame.reset_index(drop=True)), axis=1)
+        
         return ret
 
 
@@ -145,12 +143,15 @@ class CrossValidation:
         if model_class == 'iALS':
             model = implicit.als.AlternatingLeastSquares(factors=p['factors'], regularization=p['regularization'], 
             alpha=p['alpha'], iterations=p['iterations'], num_threads=4)
+        
         if model_class == 'LMF':
             model = implicit.lmf.LogisticMatrixFactorization(factors=p['factors'], learning_rate=p['learning_rate'], 
             regularization=p['regularization'], iterations=p['iterations'], neg_prop=p['neg_prop'])
+        
         if model_class == 'BPR':
             model = implicit.bpr.BayesianPersonalizedRanking(factors=p['factors'], learning_rate=p['learning_rate'], 
             regularization=p['regularization'], iterations=p['iterations'])
+        
         return model
 
 
