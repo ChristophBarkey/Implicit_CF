@@ -31,7 +31,7 @@ class CrossValidation:
         return {'mpr' : np.mean(mprs)} 
    
     def evaluate_model(self, model, train, test, k):
-        metrics = ranking_metrics_at_k(model, train, test, K=k)
+        metrics = ranking_metrics_at_k(model, train, test, K=k, show_progress=False)
         mpr = self.calc_mpr(model, train, test)
         metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
@@ -56,20 +56,24 @@ class CrossValidation:
         return (return_dict, return_dict_train)
 
 
-    def k_fold_eval(self, test, train, model, alpha) :
+        # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
+    def k_fold_eval(self, test, train, model, return_type) :
         for i in range(len(test)) :
             model = model
             test_temp = test[str(i)]
             train_temp = train[str(i)]
-            print(test_temp.nnz)
-            print(train_temp.nnz)
-            model.fit(train_temp * alpha)
+            #print(test_temp.nnz)
+            #print(train_temp.nnz)
+            model.fit(train_temp, show_progress=False)
             m = self.evaluate_model(model, train_temp, test_temp, 10)
             if i == 0:
                 df = m
             else :
                 df = pd.concat((df, m), axis=0)
-        return df
+        if return_type == 'full':
+            return df
+        if return_type == 'mean':
+            return df.mean().to_frame().T
 
 
 
