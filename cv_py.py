@@ -4,6 +4,7 @@ import numpy as np
 from implicit.evaluation import train_test_split, ranking_metrics_at_k
 from implicit.datasets.movielens import get_movielens
 import implicit
+from itertools import product
 
 
 class CrossValidation:
@@ -75,8 +76,85 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def test(self):
-        print('test')
+    def hyperp_tuning(self, test, train, param_space, model_class, eval):
+        """" Hyperparameter tuning method for implicit models
+
+        Parameters
+        ----------
+        test : dict
+            dict of test data, output of split_k_fold()
+        train : dict
+            dict of test data, output of split_k_fold()
+        space : dict
+            dict of parameters to evaluate. E.g. {'param' : [val1, val2]}
+            Parameters for iALS:
+                factors, regularization, alpha, iterations
+            Parameters for LMF:
+                factors, learning_rate, regularization, iterations, neg_prop
+            Parameters for BPR:
+                factors, learning_rate, regularization, iterations
+        model_class : str
+            iALS, LMF or BPR
+        eval : str
+            evaluation protocol
+            'cv' for k-fold crossvalidation, 'split' for one split
+        """
+
+        # prepare parameter space dict
+        keys, values = zip(*param_space.items())
+        result = [dict(zip(keys, p)) for p in product(*values)]
+        
+        first_iter = True
+        
+        #iterate through all param combinations
+        for r in result:
+            model = self.get_model(r, model_class)
+            
+            if eval == 'cv':
+                #crossvalidation with method from CrossValidation
+                res = self.k_fold_eval(test, train, model, return_type='mean')
+            
+            if eval == 'split':
+                #simple train/test split, applying evaluate_model method from CrossValidation
+                res = self.evaluate_model(model, train, test, 10)
+
+            #create final frame in the first iter
+            if first_iter == True:
+                metrics_frame = res
+                first_iter = False
+            
+            #add metrics of r-th parameter combination to frame
+            else:
+                metrics_frame = pd.concat((metrics_frame, res), axis=0)
+        
+        #prepare frame of parameter combinations
+        param_df = pd.DataFrame(result)
+
+        #compose frame of parameter combinations and respective metrics 
+        ret = pd.concat((param_df.reset_index(drop=True), metrics_frame.reset_index(drop=True)), axis=1)
+        return ret
+
+
+    def get_model(p, model_class):
+        """"Method to get model according to class and params
+        
+        Parameters
+        ----------
+        p : list of dicts
+            each dict represents a param combination
+        model_class : str
+            specifying the model class, iALS, LMF or BPR
+        """
+        if model_class == 'iALS':
+            model = implicit.als.AlternatingLeastSquares(factors=p['factors'], regularization=p['regularization'], 
+            alpha=p['alpha'], iterations=p['iterations'], num_threads=4)
+        if model_class == 'LMF':
+            model = implicit.lmf.LogisticMatrixFactorization(factors=p['factors'], learning_rate=p['learning_rate'], 
+            regularization=p['regularization'], iterations=p['iterations'], neg_prop=p['neg_prop'])
+        if model_class == 'BPR':
+            model = implicit.bpr.BayesianPersonalizedRanking(factors=p['factors'], learning_rate=p['learning_rate'], 
+            regularization=p['regularization'], iterations=p['iterations'])
+        return model
 
 
 
