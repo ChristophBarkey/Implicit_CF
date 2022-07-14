@@ -11,7 +11,7 @@ class DataLoader:
 
     # integrated func to load co(d) data and return csr user_item
     def import_agco(self, file, clip) :
-        import pandas as pd
+        #import pandas as pd
         locations = pd.read_csv('locations_agco_new.csv', sep='|', low_memory=False)
         if file == 'CO':
             co = pd.read_csv('co_agco_new.csv', sep = '|', low_memory=False)
@@ -22,8 +22,8 @@ class DataLoader:
         
         if file == 'PO':
             po = pd.read_csv('po_agco_new.csv', sep = '|', low_memory=False)
-            pd = pd.read_csv('pd_agco_new.csv', sep = '|', low_memory=False)
-            pod = pd.merge(po, pd, on='po_id', how='inner')
+            ppd = pd.read_csv('pd_agco_new.csv', sep = '|', low_memory=False)
+            pod = pd.merge(po, ppd, on='po_id', how='inner')
             pod_loc = pd.merge(pod, locations, left_on='receive_location_id', right_on='location_id', how='left')
             dealer_items = pod_loc[['group1', 'item_id', 'requested_quantity']]
         
