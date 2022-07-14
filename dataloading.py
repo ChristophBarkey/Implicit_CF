@@ -11,6 +11,7 @@ class DataLoader:
 
     # integrated func to load co(d) data and return csr user_item
     def import_agco(self, file, clip) :
+        import pandas as pd
         locations = pd.read_csv('locations_agco_new.csv', sep='|', low_memory=False)
         if file == 'CO':
             co = pd.read_csv('co_agco_new.csv', sep = '|', low_memory=False)
