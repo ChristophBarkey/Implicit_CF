@@ -10,13 +10,22 @@ class DataLoader:
         pass
 
     # integrated func to load co(d) data and return csr user_item
-    def import_agco_co(self, clip) :
-        co = pd.read_csv('co_agco_new.csv', sep = '|', low_memory=False)
-        cd = pd.read_csv('cd_agco_new.csv', sep = '|', low_memory=False)
-        cod = pd.merge(co, cd, on='co_id', how='inner')
+    def import_agco(self, file, clip) :
         locations = pd.read_csv('locations_agco_new.csv', sep='|', low_memory=False)
-        cod_loc = pd.merge(cod, locations, left_on='supply_location_id', right_on='location_id', how='left')
-        dealer_items = cod_loc[['group1', 'item_id', 'requested_quantity']]
+        if file == 'CO':
+            co = pd.read_csv('co_agco_new.csv', sep = '|', low_memory=False)
+            cd = pd.read_csv('cd_agco_new.csv', sep = '|', low_memory=False)
+            cod = pd.merge(co, cd, on='co_id', how='inner')
+            cod_loc = pd.merge(cod, locations, left_on='supply_location_id', right_on='location_id', how='left')
+            dealer_items = cod_loc[['group1', 'item_id', 'requested_quantity']]
+        
+        if file == 'PO':
+            po = pd.read_csv('po_agco_new.csv', sep = '|', low_memory=False)
+            pd = pd.read_csv('pd_agco_new.csv', sep = '|', low_memory=False)
+            pod = pd.merge(po, pd, on='po_id', how='inner')
+            pod_loc = pd.merge(pod, locations, left_on='receive_location_id', right_on='location_id', how='left')
+            dealer_items = pod_loc[['group1', 'item_id', 'requested_quantity']]
+        
         user_item = dealer_items.groupby(by=['group1', 'item_id']).sum().reset_index()
         user_item.columns = ['user', 'item', 'purchases']
         user_item = user_item.loc[user_item.purchases > 0]
