@@ -30,7 +30,7 @@ class DataLoader:
             user_item_pod_loc = agco_pod_loc[['user', 'item_id', 'requested_quantity']].groupby(by=['user', 'item_id']).sum().reset_index()
             user_item_pod_loc = user_item_pod_loc[user_item_pod_loc.requested_quantity >= 1]
             purchases_clipped_po = np.percentile(user_item_pod_loc.requested_quantity, 99)
-            user_item_pod_loc['purchases'] = np.clip(user_item_cod_loc.requested_quantity, a_min=1, a_max=purchases_clipped_po) 
+            user_item_pod_loc['purchases'] = np.clip(user_item_pod_loc.requested_quantity, a_min=1, a_max=purchases_clipped_po) 
             user_item_po = user_item_pod_loc[['user', 'item_id', 'purchases']]
             user_item_po.columns = ['user', 'item', 'purchases']
             df = user_item_po
