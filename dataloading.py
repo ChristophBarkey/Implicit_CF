@@ -45,6 +45,14 @@ class DataLoader:
             user_item_csr = user_item_coo.tocsr()
             return user_item_csr
 
+    # function to transform the output df of import_agco to a csr matrix
+    def to_csr(self, df):
+        df['user'] = pd.Categorical(df.user).codes
+        df['item'] = pd.Categorical(df.item).codes
+        user_item_coo = coo_matrix((df.purchases, (df.user, df.item)))
+        user_item_csr = user_item_coo.tocsr()
+        return user_item_csr
+
     # func to get the number of items each user has interacted with
     def items_per_user(self, csr):
         df = pd.DataFrame({'user' : csr.tocoo().row, 'item' : csr.tocoo().col})
