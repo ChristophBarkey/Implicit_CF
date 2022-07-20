@@ -69,5 +69,27 @@ class DataLoader:
         df_agg = df.groupby(by=['user']).count()
         return df_agg
 
+    def get_user_per_item_frame(user_item_co, user_item_po):
+        po_items_per_user = user_item_po.groupby(by=['user']).count()
+        co_items_per_user = user_item_co.groupby(by=['user']).count()
+        po_users_per_item = user_item_po.groupby(by=['item']).count()
+        co_users_per_item = user_item_co.groupby(by=['item']).count()
+        podl_upi = po_users_per_item.user.describe()
+        codl_upi = co_users_per_item.user.describe()
+        podl_ipu = po_items_per_user['item'].describe()
+        codl_ipu = co_items_per_user['item'].describe()
+        return pd.DataFrame([podl_upi, codl_upi, podl_ipu, codl_ipu], index=['podl_upi', 'codl_upi', 'podl_ipu', 'codl_ipu'])
 
+    def get_basic_user_item_info(user_item_co, user_item_po):
+        sparsity_po = 1-(user_item_po.shape[0] / (user_item_po.user.nunique() * user_item_po['item'].nunique()))
+        sparsity_co = 1-(user_item_co.shape[0] / (user_item_co.user.nunique() * user_item_co['item'].nunique()))
+        nnz_po = len(user_item_po)
+        nnz_co = len(user_item_co)
+        nouser_po = user_item_po.user.nunique()
+        nouser_co = user_item_co.user.nunique()
+        noitem_po = user_item_po.item.nunique()
+        noitem_co = user_item_co.item.nunique()
+        co = [nouser_co, noitem_co, nnz_co, sparsity_co]
+        po = [nouser_po, noitem_po, nnz_po, sparsity_po]
+        return pd.DataFrame([co, po], index=['co', 'po'], columns=['nouser', 'noitem', 'nnz', 'sparsity'])
 
