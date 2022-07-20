@@ -121,7 +121,7 @@ class DataLoader:
 
         plt.show()
 
-    def get_purchase_scatterplot(self, data, size=(28, 8), dpi=80, s=0.01, cmap='rainbow'):
+    def get_purchase_scatterplot(self, data, size=(28, 8), dpi=80, s=0.01, cmap='rainbow', save=False):
         from matplotlib import pyplot as plt
         if not isinstance(data, csr_matrix):
             data = self.to_csr(data)
@@ -133,4 +133,6 @@ class DataLoader:
         plt.figure(figsize=size, dpi=dpi)
         plt.scatter(xy[:,0], xy[:,1], s=s, c=vals, cmap=cmap)
         plt.colorbar()
+        if save:
+            plt.savefig('scatterplot.svg')
         plt.show()
