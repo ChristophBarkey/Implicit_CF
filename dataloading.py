@@ -94,7 +94,7 @@ class DataLoader:
         return pd.DataFrame([co, po], index=['co', 'po'], columns=['nouser', 'noitem', 'nnz', 'sparsity'])
 
 
-    def get_purchase_histograms(self, user_item_co, user_item_po, style='seaborn-whitegrid', color='ae132a', alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8)):
+    def get_purchase_histograms(self, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8)):
         from matplotlib import pyplot as plt
         plt.rcParams['text.usetex'] = True
         plt.style.use(style)
