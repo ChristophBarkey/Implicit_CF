@@ -93,3 +93,28 @@ class DataLoader:
         po = [nouser_po, noitem_po, nnz_po, sparsity_po]
         return pd.DataFrame([co, po], index=['co', 'po'], columns=['nouser', 'noitem', 'nnz', 'sparsity'])
 
+
+    def get_purchase_histograms(self, user_item_co, user_item_po):
+        from matplotlib import pyplot as plt
+        plt.rcParams['text.usetex'] = True
+        plt.style.use('seaborn-paper')
+
+        fig, ax = plt.subplots(figsize=(20, 8), nrows=1, ncols=2)
+        #ax.hist(pd.Series(user_item_csr_po.data), color='#ae132a', alpha=1)
+        ax[0].hist(user_item_co.purchases, color='#ae132a', alpha=1, bins=30)
+        ax[0].set_title('Distribution of purchase quantities CO', fontsize=25)
+        ax[0].set_xlabel('Number of purchases', fontsize=15)
+        ax[0].set_ylabel('Frequency', fontsize=15)
+        ax[0].tick_params(axis='both', which='major', labelsize=10)
+        ax[0].tick_params(axis='both', which='minor', labelsize=10)
+
+        ax[1].hist(user_item_po.purchases, color='#ae132a', alpha=1, bins=30)
+        ax[1].set_title('Distribution of purchase quantities PO', fontsize=25)
+        ax[1].set_xlabel('Number of purchases', fontsize=15)
+        ax[1].set_ylabel('Frequency', fontsize=15)
+        ax[1].tick_params(axis='both', which='major', labelsize=10)
+        ax[1].tick_params(axis='both', which='minor', labelsize=10)
+        #plt.savefig('histogram.svg')
+        # Show plot
+
+        plt.show()
