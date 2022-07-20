@@ -116,7 +116,7 @@ class DataLoader:
         ax[1].tick_params(axis='both', which='major', labelsize=ticks_fsize)
         ax[1].tick_params(axis='both', which='minor', labelsize=ticks_fsize)
         if save:
-            plt.savefig('histogram.svg')
+            plt.savefig('histogram.png')
         # Show plot
 
         plt.show()
@@ -134,5 +134,5 @@ class DataLoader:
         plt.scatter(xy[:,0], xy[:,1], s=s, c=vals, cmap=cmap)
         plt.colorbar()
         if save:
-            plt.savefig('scatterplot.svg')
+            plt.savefig('scatterplot.png')
         plt.show()
