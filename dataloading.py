@@ -134,5 +134,5 @@ class DataLoader:
         plt.scatter(xy[:,0], xy[:,1], s=s, c=vals, cmap=cmap)
         plt.colorbar()
         if save:
-            plt.savefig('scatterplot.png')
+            plt.savefig('scatterplot.svg')
         plt.show()
