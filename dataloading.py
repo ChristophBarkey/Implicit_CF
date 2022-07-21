@@ -116,7 +116,7 @@ class DataLoader:
         ax[1].tick_params(axis='both', which='major', labelsize=ticks_fsize)
         ax[1].tick_params(axis='both', which='minor', labelsize=ticks_fsize)
         if save:
-            plt.savefig('histogram.png')
+            plt.savefig('histogram.svg')
         # Show plot
 
         plt.show()
