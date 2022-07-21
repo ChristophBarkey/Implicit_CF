@@ -94,7 +94,7 @@ class DataLoader:
         return pd.DataFrame([co, po], index=['co', 'po'], columns=['nouser', 'noitem', 'nnz', 'sparsity'])
 
 
-    def get_purchase_histograms(self, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, 
+    def get_purchase_histograms(self, OEM, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, 
                                 label_fsize=15, ticks_fsize=10, size=(20, 8), save=False):
         from matplotlib import pyplot as plt
         plt.rcParams['text.usetex'] = True
@@ -116,12 +116,16 @@ class DataLoader:
         ax[1].tick_params(axis='both', which='major', labelsize=ticks_fsize)
         ax[1].tick_params(axis='both', which='minor', labelsize=ticks_fsize)
         if save:
-            plt.savefig('histogram.svg')
+            if OEM == 'AGCO':
+                plt.savefig('histogram_agco.pdf', bbox_inches='tight')
+            if OEM == 'TEREX':
+                plt.savefig('histogram_terex.pdf', bbox_inches='tight')
+            
         # Show plot
 
         plt.show()
 
-    def get_purchase_scatterplot(self, data, size=(28, 8), dpi=80, s=0.01, cmap='rainbow', save=False):
+    def get_purchase_scatterplot(self, OEM, data, size=(28, 8), dpi=80, s=0.01, cmap='rainbow', save=False):
         from matplotlib import pyplot as plt
         if not isinstance(data, csr_matrix):
             data = self.to_csr(data)
@@ -134,5 +138,8 @@ class DataLoader:
         plt.scatter(xy[:,0], xy[:,1], s=s, c=vals, cmap=cmap)
         plt.colorbar()
         if save:
-            plt.savefig('scatterplot.svg')
+            if OEM == 'AGCO':
+                plt.savefig('scatterplot_agco.pdf', bbox_inches='tight')
+            if OEM == 'TEREX':
+                plt.savefig('scatterplot_terex.pdf', bbox_inches='tight')
         plt.show()
