@@ -94,8 +94,7 @@ class DataLoader:
         return pd.DataFrame([co, po], index=['co', 'po'], columns=['nouser', 'noitem', 'nnz', 'sparsity'])
 
 
-    def get_purchase_histograms(self, OEM, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, 
-                                label_fsize=15, ticks_fsize=10, size=(20, 8), save=False):
+    def get_purchase_histograms(self, fig_title, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8), save=False):
         from matplotlib import pyplot as plt
         plt.rcParams['text.usetex'] = True
         plt.style.use(style)
@@ -116,9 +115,9 @@ class DataLoader:
         ax[1].tick_params(axis='both', which='major', labelsize=ticks_fsize)
         ax[1].tick_params(axis='both', which='minor', labelsize=ticks_fsize)
         if save:
-            if OEM == 'AGCO':
+            if fig_title == 'AGCO':
                 plt.savefig('histogram_agco.pdf', bbox_inches='tight')
-            if OEM == 'TEREX':
+            if fig_title == 'TEREX':
                 plt.savefig('histogram_terex.pdf', bbox_inches='tight')
             
         # Show plot
