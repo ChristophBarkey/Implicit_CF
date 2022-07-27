@@ -42,8 +42,8 @@ class DataLoader:
 
         user_item = copod_loc[['user', 'item_id', 'requested_quantity']].groupby(by=['user', 'item_id']).sum().reset_index()
         user_item = user_item[user_item.requested_quantity >= 1]
-        #clip_max = np.percentile(user_item.requested_quantity, 99)
-        #user_item['purchases'] = np.clip(user_item.requested_quantity, a_min=1, a_max=clip_max) 
+        clip_max = np.percentile(user_item.requested_quantity, 100)
+        user_item['purchases'] = np.clip(user_item.requested_quantity, a_min=1, a_max=clip_max) 
         user_item = user_item[['user', 'item_id', 'purchases']]
         user_item.columns = ['user', 'item', 'purchases']
 
