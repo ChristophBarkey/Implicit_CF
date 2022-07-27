@@ -10,7 +10,7 @@ class DataLoader:
         pass
 
     # integrated func to load co(d) data and return csr user_item
-    def import_data(self, OEM, file, return_type) :
+    def import_data(self, OEM, file, return_type, clip=99) :
         #import pandas as pd
  
         if OEM == 'AGCO':
@@ -42,7 +42,7 @@ class DataLoader:
 
         user_item = copod_loc[['user', 'item_id', 'requested_quantity']].groupby(by=['user', 'item_id']).sum().reset_index()
         user_item = user_item[user_item.requested_quantity >= 1]
-        clip_max = np.percentile(user_item.requested_quantity, 100)
+        clip_max = np.percentile(user_item.requested_quantity, clip)
         user_item['purchases'] = np.clip(user_item.requested_quantity, a_min=1, a_max=clip_max) 
         user_item = user_item[['user', 'item_id', 'purchases']]
         user_item.columns = ['user', 'item', 'purchases']
