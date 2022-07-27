@@ -55,6 +55,15 @@ class DataLoader:
             csr = self.to_csr(user_item)
             return csr
 
+    # function to merge co and po data. if user/item appears in both files, the max purchase is considered, else a full join
+    def merge_co_po(self, co, po):
+        full = pd.merge(co, po, on=['item', 'user'], how='outer')
+        full = full.fillna(0)
+        full['max'] = full[['purchases_x', 'purchases_y']].max(axis=1)
+        ret = full[['user', 'item', 'max']]
+        ret.columns =  ['user', 'item', 'purchases']
+        return ret
+
     # function to transform the output df of import_agco to a csr matrix
     def to_csr(self, df):
         #!! Changes the input data!!
