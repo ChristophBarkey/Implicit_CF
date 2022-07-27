@@ -99,7 +99,7 @@ class DataLoader:
         plt.rcParams['text.usetex'] = True
         plt.rcParams['font.family'] = 'serif'
         plt.rcParams['font.serif'] = 'cm'
-        plt.style.use(style)
+        #plt.style.use(style)
 
         fig, ax = plt.subplots(figsize=size, nrows=1, ncols=2)
         #ax.hist(pd.Series(user_item_csr_po.data), color='#ae132a', alpha=1)
