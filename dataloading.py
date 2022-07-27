@@ -96,10 +96,10 @@ class DataLoader:
 
     def get_purchase_histograms(self, fig_title, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8), save=False):
         from matplotlib import pyplot as plt
+        plt.style.use(style)
         plt.rcParams['text.usetex'] = True
         plt.rcParams['font.family'] = 'serif'
         plt.rcParams['font.serif'] = 'cm'
-        #plt.style.use(style)
 
         fig, ax = plt.subplots(figsize=size, nrows=1, ncols=2)
         #ax.hist(pd.Series(user_item_csr_po.data), color='#ae132a', alpha=1)
