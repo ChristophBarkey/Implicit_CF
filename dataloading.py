@@ -65,8 +65,8 @@ class DataLoader:
         return ret
 
     # function to transform the output df of import_agco to a csr matrix
-    def to_csr(self, df):
-        #!! Changes the input data!!
+    def to_csr(self, df_input):
+        df = df_input
         df['user'] = pd.Categorical(df.user).codes
         df['item'] = pd.Categorical(df.item).codes
         user_item_coo = coo_matrix((df.purchases, (df.user, df.item)))
