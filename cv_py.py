@@ -195,6 +195,8 @@ class CrossValidation:
             test_temp = test[str(i)]
             train_temp = train[str(i)]
 
+            print(r)
+
             # eALS is from a different library, hence the additional transformation
             if model_class == 'eALS':
                 model.fit(train_temp)
