@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 
 class Visualize:
 
-    def __init__(self, result_frame):
-        self.result_frame = result_frame
+    def __init__(self):
+        pass
 
 
-    def get_heatmap(self, model_class, metric, save=False):
+    def get_heatmap(self, result_frame, model_class, metric, save=False):
         if model_class == 'iALS':
             ind = 'alpha'
             col = 'regularization'
@@ -23,7 +23,7 @@ class Visualize:
             ind = 'learning_rate'
             col = 'regularization'
 
-        heatmap_df = self.result_frame.pivot(index=ind, columns=col, values=metric)
+        heatmap_df = result_frame.pivot(index=ind, columns=col, values=metric)
 
         fig, ax = plt.subplots(figsize=(15, 12), nrows=1, ncols=1)
 
