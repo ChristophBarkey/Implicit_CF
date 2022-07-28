@@ -4,6 +4,7 @@ import numpy as np
 from implicit.evaluation import train_test_split, ranking_metrics_at_k
 from implicit.datasets.movielens import get_movielens
 import implicit
+from eals import ElementwiseAlternatingLeastSquares, load_model
 from itertools import product
 
 
@@ -58,14 +59,24 @@ class CrossValidation:
 
 
         # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
-    def k_fold_eval(self, test, train, model, return_type) :
+    def k_fold_eval(self, test, train, model, return_type, model_class) :
         for i in range(len(test)) :
             model = model
             test_temp = test[str(i)]
             train_temp = train[str(i)]
             #print(test_temp.nnz)
             #print(train_temp.nnz)
-            model.fit(train_temp, show_progress=False)
+            if model_class == 'eALS':
+                model.fit(train_temp)
+                #create empty implicit model
+                temp_model = implicit.als.AlternatingLeastSquares()
+                #copy factors from fitted eals model to empty implicit model
+                temp_model.user_factors = model.user_factors
+                temp_model.item_factors = model.item_factors
+                #continue with implicit model to enable evaluation methods
+                model = temp_model
+            else:
+                model.fit(train_temp, show_progress=False)
             m = self.evaluate_model(model, train_temp, test_temp, 10)
             if i == 0:
                 df = m
@@ -110,7 +121,7 @@ class CrossValidation:
             model = self.get_model(r, model_class)
             
             #evaluate model on train/test with k_fold_eval
-            res = self.k_fold_eval(test, train, model, return_type='mean')
+            res = self.k_fold_eval(test, train, model, return_type='mean', model_class)
 
             #create final frame in the first iter
             if first_iter == True:
@@ -151,6 +162,10 @@ class CrossValidation:
         if model_class == 'BPR':
             model = implicit.bpr.BayesianPersonalizedRanking(factors=p['factors'], learning_rate=p['learning_rate'], 
             regularization=p['regularization'], iterations=p['iterations'])
+
+        if model_class == 'eALS':
+            model = ElementwiseAlternatingLeastSquares(factors=p['factors'], alpha=p['alpha'], 
+            regularization=p['regularization'], w0=p['w0'])
         
         return model
 
