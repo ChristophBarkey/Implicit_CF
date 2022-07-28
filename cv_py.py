@@ -62,6 +62,7 @@ class CrossValidation:
     def k_fold_eval(self, test, train, model, model_class, return_type) :
         for i in range(len(test)) :
             model = model
+            #model = self.get_model()
             test_temp = test[str(i)]
             train_temp = train[str(i)]
             #print(test_temp.nnz)
@@ -78,6 +79,7 @@ class CrossValidation:
             else:
                 model.fit(train_temp, show_progress=False)
             m = self.evaluate_model(model, train_temp, test_temp, 10)
+            del(model)
             if i == 0:
                 df = m
             else :
