@@ -59,7 +59,7 @@ class CrossValidation:
 
 
         # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
-    def k_fold_eval(self, test, train, model, return_type, model_class) :
+    def k_fold_eval(self, test, train, model, model_class, return_type) :
         for i in range(len(test)) :
             model = model
             test_temp = test[str(i)]
@@ -121,7 +121,7 @@ class CrossValidation:
             model = self.get_model(r, model_class)
             
             #evaluate model on train/test with k_fold_eval
-            res = self.k_fold_eval(test, train, model, return_type='mean', model_class)
+            res = self.k_fold_eval(test, train, model, model_class, return_type='mean')
 
             #create final frame in the first iter
             if first_iter == True:
