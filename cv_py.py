@@ -211,11 +211,14 @@ class CrossValidation:
                 #continue with implicit model to enable evaluation methods
                 model = temp_model
             else:
-                model.fit(train_temp, show_progress=False)
-            
-            # if Nan appears in factors, they are transformed to 0
-            model.user_factors[np.isnan(model.user_factors)] = 0
-            model.item_factors[np.isnan(model.item_factors)] = 0
+                try:
+                    model.fit(train_temp, show_progress=False)
+                
+                # if Nan appears in factors, they are transformed to 0
+                except:
+                    model.user_factors[np.isnan(model.user_factors)] = 0
+                    model.item_factors[np.isnan(model.item_factors)] = 0
+                    print(r)
 
             # after fitting the model, it is evaluated. Using k=10 as default for ranking_matrics_at_k
             m = self.evaluate_model(model, train_temp, test_temp, 10)
