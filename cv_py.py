@@ -121,7 +121,7 @@ class CrossValidation:
             #model = self.get_model(r, model_class)
             
             #evaluate model on train/test with k_fold_eval
-            res = self.k_fold_eval(test, train, r, model_class, return_type='mean')
+            res = self.k_fold_eval(test, train, r, model_class, return_type='full')
 
             #create final frame in the first iter
             if first_iter == True:
