@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 from implicit.evaluation import train_test_split, ranking_metrics_at_k
-from implicit.datasets.movielens import get_movielens
+#from implicit.datasets.movielens import get_movielens
 import implicit
 from eals import ElementwiseAlternatingLeastSquares, load_model
 from itertools import product
@@ -209,10 +209,11 @@ class CrossValidation:
                 #continue with implicit model to enable evaluation methods
                 model = temp_model
             else:
+                # for the BPR model sometimes NaNs appear in the factors and an error interrupts the tuning
                 try:
                     model.fit(train_temp, show_progress=False)
                 
-                # if Nan appears in factors, they are transformed to 0
+                # if Nan appears in factors, they are transformed to 0 and the param combination printed out
                 except:
                     model.user_factors[np.isnan(model.user_factors)] = 0
                     model.item_factors[np.isnan(model.item_factors)] = 0
