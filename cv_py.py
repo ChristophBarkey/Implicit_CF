@@ -116,8 +116,32 @@ class CrossValidation:
         # divide sum of observations * rank by the sum of observations
         mpr = rt_rank.sum() / test.toarray().sum()
 
-        return mpr
-   
+        return {'mpr' : mpr} 
+
+    def MPR_new_per_user(self, model, train, test):
+        num_users = test.shape[0]
+        num_items = test.shape[1]
+
+        rank = np.arange(num_items) / (num_items-1)
+
+        rt_rank = 0
+        rt = 0
+
+        for u in range(num_users):
+            # get recommendations for all users and all items
+            rec_items = model.recommend(u, train[u], num_items)[0]
+
+            # sort rank matrix according to recommendations
+            sort_rank = rank[rec_items.argsort()]
+
+            # multiply sorted rank matrix with real test observations, zeros are disregarded
+            rt_rank += (test[u].toarray() * sort_rank).sum()
+
+            rt += test[u].toarray().sum()
+
+        return {'mpr' : rt_rank / rt}  
+
+    
 
     def evaluate_model(self, model, train, test, k):
         """" Evaluation Function
