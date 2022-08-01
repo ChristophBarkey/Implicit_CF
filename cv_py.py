@@ -96,6 +96,9 @@ class CrossValidation:
             mprs.append(mpr)
         return {'mpr' : np.mean(mprs)} 
 
+
+    # new MPR function applying the exact formula, considering the real rt values
+    # Fast for smaller matrices, crashes for large matrices
     def mpr_new(self, model, train, test):
         num_users = test.shape[0]
         num_items = test.shape[1]
@@ -118,6 +121,9 @@ class CrossValidation:
 
         return {'mpr' : mpr} 
 
+
+    # new MPR function applying the exact formula, considering the real rt values
+    # Works for larger matrices, but a bit slower
     def MPR_new_per_user(self, model, train, test):
         num_users = test.shape[0]
         num_items = test.shape[1]
