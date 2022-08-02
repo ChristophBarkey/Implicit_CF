@@ -25,6 +25,14 @@ class Visualize:
 
         heatmap_df = result_frame.pivot(index=ind, columns=col, values=metric)
 
+        if model_class == 'BPR':
+            ind = 'learningrate'
+            heatmap_df.index.name = ind
+
+        if model_class == 'LMF':
+            ind = 'learningrate'
+            heatmap_df.index.name = ind
+
         fig, ax = plt.subplots(figsize=(15, 12), nrows=1, ncols=1)
 
         plt.style.use('seaborn-whitegrid')
