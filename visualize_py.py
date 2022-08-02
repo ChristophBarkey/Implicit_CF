@@ -23,6 +23,10 @@ class Visualize:
             ind = 'learning_rate'
             col = 'regularization'
 
+        if model_class == 'eALS':
+            ind = 'w0'
+            col = 'regularization'
+
         heatmap_df = result_frame.pivot(index=ind, columns=col, values=metric)
 
         if model_class == 'BPR':
