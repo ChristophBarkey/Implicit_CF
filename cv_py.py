@@ -95,7 +95,59 @@ class CrossValidation:
             mpr = self.mpr_per_user(model, train, test, self.user_item.shape[1], u)
             mprs.append(mpr)
         return {'mpr' : np.mean(mprs)} 
-   
+
+
+    # new MPR function applying the exact formula, considering the real rt values
+    # Fast for smaller matrices, crashes for large matrices
+    def mpr_new(self, model, train, test):
+        num_users = test.shape[0]
+        num_items = test.shape[1]
+        
+        # get recommendations for all users and all items
+        rec_items = model.recommend(np.arange(num_users), train, num_items)[0]
+
+        # generate rank matrix with equal dimensions
+        rank = np.array([np.arange(num_items) / (num_items-1)])
+        rank_rep = np.tile(rank, num_users).reshape(num_users, num_items)
+
+        # sort rank matrix according to recommendations
+        sort_rank = rank_rep[np.arange(num_users)[:, None], rec_items.argsort()]
+        
+        # multiply sorted rank matrix with real test observations, zeros are disregarded
+        rt_rank = test.toarray() * sort_rank
+
+        # divide sum of observations * rank by the sum of observations
+        mpr = rt_rank.sum() / test.toarray().sum()
+
+        return {'mpr' : mpr} 
+
+
+    # new MPR function applying the exact formula, considering the real rt values
+    # Works for larger matrices, but a bit slower
+    def MPR_new_per_user(self, model, train, test):
+        num_users = test.shape[0]
+        num_items = test.shape[1]
+
+        rank = np.arange(num_items) / (num_items-1)
+
+        rt_rank = 0
+        rt = 0
+
+        for u in range(num_users):
+            # get recommendations for all users and all items
+            rec_items = model.recommend(u, train[u], num_items)[0]
+
+            # sort rank matrix according to recommendations
+            sort_rank = rank[rec_items.argsort()]
+
+            # multiply sorted rank matrix with real test observations, zeros are disregarded
+            rt_rank += (test[u].toarray() * sort_rank).sum()
+
+            rt += test[u].toarray().sum()
+
+        return {'mpr' : rt_rank / rt}  
+
+    
 
     def evaluate_model(self, model, train, test, k):
         """" Evaluation Function
