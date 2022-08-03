@@ -12,7 +12,7 @@ class DataPreparation:
             Dataframe with the columns ['user', 'item', 'purchases'] 
             Containing the user-item interactions
         """
-        user_item = self.user_item
+        self.user_item = user_item
 
     def _get_user_features(self):
         """" Helper function to get the user_feature values and the user_feature list
