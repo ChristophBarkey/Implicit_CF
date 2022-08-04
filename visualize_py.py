@@ -60,7 +60,7 @@ class Visualize:
         ax.tick_params(axis='both', which='minor', labelsize=15)
         #plt.colorbar()
         if save:
-            plt.savefig('heatmap.pdf')
+            plt.savefig('heatmap.pdf', bbox_inches='tight')
         plt.show()
 
 
