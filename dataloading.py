@@ -59,9 +59,10 @@ class DataLoader:
     def clip_df(self, df, clip):
         clip_max = np.percentile(df.purchases, clip)
         df['clipped'] = np.clip(df.purchases, a_min=1, a_max=clip_max) 
-        df = df[['user', 'item', 'clipped']]
-        df.columns = ['user', 'item', 'purchases']
-        return df
+        df_return = df[['user', 'item', 'clipped']]
+        df_return.columns = ['user', 'item', 'purchases']
+        df.drop('clipped')
+        return df_return
 
     # function to merge co and po data. if user/item appears in both files, the max purchase is considered, else a full join
     def merge_co_po(self, co, po):
