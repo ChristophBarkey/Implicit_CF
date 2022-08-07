@@ -171,7 +171,8 @@ class CrossValidation:
             Pandas dataframe containing all metrics
         """
         metrics = ranking_metrics_at_k(model, train, test, K=k, show_progress=False)
-        mpr = self.calc_mpr(model, train, test)
+        #mpr = self.calc_mpr(model, train, test)
+        mpr = self.mpr_new(model, train, test)
         metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
    
@@ -341,6 +342,44 @@ class CrossValidation:
             else:
                 metrics_frame = pd.concat((metrics_frame, res), axis=0)
         
+        #prepare frame of parameter combinations
+        param_df = pd.DataFrame(result)
+
+        #compose frame of parameter combinations and respective metrics 
+        ret = pd.concat((param_df.reset_index(drop=True), metrics_frame.reset_index(drop=True)), axis=1)
+        
+        return ret
+
+    def hyperp_tuning_simple(self, test, train, param_space, model_class):
+        # prepare parameter space dict
+        keys, values = zip(*param_space.items())
+
+        # result is a list of dicts, each dict is one parameter combination
+        result = [dict(zip(keys, p)) for p in product(*values)]
+        
+        first_iter = True
+
+        #iterate through all param combinations
+        for r in result:
+
+            #get model with parameters as indicated
+            #model = self.get_model(r, model_class)
+            
+            #evaluate model on train/test with k_fold_eval
+            model = self.get_model(r, model_class)
+            model.fit(train)
+
+            res = self.evaluate_model(model, train, test, 10)
+
+            #create final frame in the first iter
+            if first_iter == True:
+                metrics_frame = res
+                first_iter = False
+            
+            #add metrics of r-th parameter combination to frame
+            else:
+                metrics_frame = pd.concat((metrics_frame, res), axis=0)
+
         #prepare frame of parameter combinations
         param_df = pd.DataFrame(result)
 
