@@ -41,7 +41,8 @@ class EDA:
         return pd.DataFrame([co, po], index=['co', 'po'], columns=['nouser', 'noitem', 'nnz', 'sparsity'])
 
 
-    def get_purchase_histograms(self, fig_title, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8), save=False):
+    def get_purchase_histograms(self, fig_title, user_item_co, user_item_po, style='seaborn-whitegrid', color='#ae132a', 
+    alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8), save=False, scale_x='linear', scale_y='linear'):
         from matplotlib import pyplot as plt
         plt.style.use(style)
         plt.rcParams['text.usetex'] = True
@@ -57,12 +58,23 @@ class EDA:
         ax[0].tick_params(axis='both', which='major', labelsize=ticks_fsize)
         ax[0].tick_params(axis='both', which='minor', labelsize=ticks_fsize)
 
+        if scale_x == 'log':
+            ax[0].set_xscale('log')
+        if scale_y == 'log':
+            ax[0].set_yscale('log')
+
         ax[1].hist(user_item_po.purchases, color=color, alpha=alpha, bins=bins)
         ax[1].set_title('Distribution of purchase quantities PO', fontsize=title_fsize, pad=25)
         ax[1].set_xlabel('Number of purchases', fontsize=label_fsize)
         ax[1].set_ylabel('Frequency', fontsize=label_fsize)
         ax[1].tick_params(axis='both', which='major', labelsize=ticks_fsize)
         ax[1].tick_params(axis='both', which='minor', labelsize=ticks_fsize)
+
+        if scale_x == 'log':
+            ax[1].set_xscale('log')
+        if scale_y == 'log':
+            ax[1].set_yscale('log')
+
         if save:
             if fig_title == 'AGCO':
                 plt.savefig('histogram_agco.pdf', bbox_inches='tight')
