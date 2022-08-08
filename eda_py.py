@@ -51,7 +51,12 @@ class EDA:
 
         fig, ax = plt.subplots(figsize=size, nrows=1, ncols=2)
         #ax.hist(pd.Series(user_item_csr_po.data), color='#ae132a', alpha=1)
-        ax[0].hist(user_item_co_a.purchases, color=color, alpha=alpha, bins=bins)
+
+        data_a = user_item_co_a.purchases
+        if isinstance(user_item_co_a, csr_matrix):
+            data_a = user_item_co_a.data
+
+        ax[0].hist(data_a, color=color, alpha=alpha, bins=bins)
         ax[0].set_title('Distribution of purchase quantities OEM$\#$1', fontsize=title_fsize, pad=25)
         ax[0].set_xlabel('Number of purchases', fontsize=label_fsize)
         ax[0].set_ylabel('Frequency', fontsize=label_fsize)
@@ -63,7 +68,11 @@ class EDA:
         if scale_y == 'log':
             ax[0].set_yscale('log')
 
-        ax[1].hist(user_item_co_t.purchases, color=color, alpha=alpha, bins=bins)
+        data_t = user_item_co_t.purchases
+        if isinstance(user_item_co_t, csr_matrix):
+            data_t = user_item_co_t.data
+
+        ax[1].hist(data_t, color=color, alpha=alpha, bins=bins)
         ax[1].set_title('Distribution of purchase quantities OEM$\#$2', fontsize=title_fsize, pad=25)
         ax[1].set_xlabel('Number of purchases', fontsize=label_fsize)
         ax[1].set_ylabel('Frequency', fontsize=label_fsize)
