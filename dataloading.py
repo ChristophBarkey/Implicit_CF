@@ -10,7 +10,7 @@ class DataLoader:
         pass
 
     # integrated func to load co(d) data and return csr user_item
-    def import_data(self, OEM, file, return_type, clip=99) :
+    def import_data(self, OEM, file, return_type, clip=100) :
         #import pandas as pd
  
         if OEM == 'AGCO':
@@ -42,11 +42,10 @@ class DataLoader:
 
         user_item = copod_loc[['user', 'item_id', 'requested_quantity']].groupby(by=['user', 'item_id']).sum().reset_index()
         user_item = user_item[user_item.requested_quantity >= 1]
-        clip_max = np.percentile(user_item.requested_quantity, clip)
-        user_item['purchases'] = np.clip(user_item.requested_quantity, a_min=1, a_max=clip_max) 
         user_item = user_item[['user', 'item_id', 'purchases']]
         user_item.columns = ['user', 'item', 'purchases']
-
+        if clip < 100:
+            user_item = self.clip_df(user_item, clip)
         
         if return_type == 'df':
             return user_item
@@ -57,12 +56,16 @@ class DataLoader:
 
     # function to clip the purchase quantities of a user-item df
     def clip_df(self, df, clip):
+        ret = df.copy()
         clip_max = np.percentile(df.purchases, clip)
-        df['clipped'] = np.clip(df.purchases, a_min=1, a_max=clip_max) 
-        df_return = df[['user', 'item', 'clipped']]
-        df_return.columns = ['user', 'item', 'purchases']
-        df.drop('clipped')
-        return df_return
+        ret['purchases'] = np.clip(ret.purchases, a_min=1, a_max=clip_max) 
+        return ret
+
+    # function to transform purchase values by log
+    def log_scale_df(self, df, epsilon, alpha=1):
+        ret = df.copy()
+        ret['purchases'] = alpha * np.log(1 + (df.purchases/epsilon))
+        return ret
 
     # function to merge co and po data. if user/item appears in both files, the max purchase is considered, else a full join
     def merge_co_po(self, co, po):
@@ -74,10 +77,10 @@ class DataLoader:
         return ret
 
     # function to transform the output df of import_agco to a csr matrix
-    def to_csr(self, df_input):
-        df = df_input
-        df['user'] = pd.Categorical(df.user).codes
-        df['item'] = pd.Categorical(df.item).codes
-        user_item_coo = coo_matrix((df.purchases, (df.user, df.item)))
+    def to_csr(self, df):
+        ret = df.copy()
+        ret['user'] = pd.Categorical(ret.user).codes
+        ret['item'] = pd.Categorical(ret.item).codes
+        user_item_coo = coo_matrix((ret.purchases, (ret.user, ret.item)))
         user_item_csr = user_item_coo.tocsr()
         return user_item_csr
