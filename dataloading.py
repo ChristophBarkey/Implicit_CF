@@ -42,7 +42,7 @@ class DataLoader:
 
         user_item = copod_loc[['user', 'item_id', 'requested_quantity']].groupby(by=['user', 'item_id']).sum().reset_index()
         user_item = user_item[user_item.requested_quantity >= 1]
-        user_item = user_item[['user', 'item_id', 'purchases']]
+        user_item = user_item[['user', 'item_id', 'requested_quantity']]
         user_item.columns = ['user', 'item', 'purchases']
         if clip < 100:
             user_item = self.clip_df(user_item, clip)
