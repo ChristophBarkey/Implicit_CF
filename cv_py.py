@@ -25,6 +25,7 @@ class CrossValidation:
         self.user_item = user_item
         self.k = k
 
+    # old function
     def mpr_per_user(self, model, train, test, num_recs, user):
         """" MPR per user
 
@@ -67,6 +68,7 @@ class CrossValidation:
         #return (np.sum(hit_indices) / num_recs) / len(hit_indices)
         return np.mean(hit_indices / num_recs)
    
+    # old function
     def calc_mpr(self, model, train, test):
         """" MPR overall
 
@@ -176,7 +178,7 @@ class CrossValidation:
         metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
    
-    def split_k_fold(self) :
+    def split_k_fold(self, seed) :
         """" Split k fold
 
         Function to split the attributed user_item matrix k fold
@@ -194,7 +196,7 @@ class CrossValidation:
         for i in range(self.k-1):
 
             # dynamically adjust the splitting proportions
-            train_temp, test_temp = train_test_split(split_matrix, train_percentage=((self.k-(i+1))/(self.k-i)))
+            train_temp, test_temp = train_test_split(split_matrix, train_percentage=((self.k-(i+1))/(self.k-i)), random_state=seed)
             return_dict[str(i)] = test_temp
             if i == 0:
                 return_dict_train[str(i)] = train_temp
