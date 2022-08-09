@@ -84,3 +84,10 @@ class DataLoader:
         user_item_coo = coo_matrix((ret.purchases, (ret.user, ret.item)))
         user_item_csr = user_item_coo.tocsr()
         return user_item_csr
+
+    # function to remove lines with items that were only bought by less or equal than n users; 1 per default
+    def remove_low_interact_items(self, df, n=1):
+        ret = df.copy()
+        duplicate_items = ret.item.value_counts() > n
+        ret_filtered = ret[ret.item.isin(duplicate_items[duplicate_items].index)]
+        return ret_filtered
