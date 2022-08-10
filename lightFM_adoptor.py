@@ -2,7 +2,7 @@
 import numpy as np
 import multiprocessing
 
-from implicit.recommender_base import MatrixFactorizationBase
+from implicit.cpu.matrix_factorization_base import MatrixFactorizationBase
 
 class LightFMAdaptor(MatrixFactorizationBase):
     def __init__(self, epochs=20, num_threads=0, *args, **kwargs):
