@@ -25,5 +25,8 @@ class eALSAdaptor(MatrixFactorizationBase):
         self.user_factors = self.model.user_factors
         self.item_factors = self.model.item_factors,
 
+    def save(self):
+        pass
+
 
 
