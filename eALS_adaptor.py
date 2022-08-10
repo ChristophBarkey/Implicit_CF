@@ -12,16 +12,16 @@ class eALSAdaptor(MatrixFactorizationBase):
         from eals import ElementwiseAlternatingLeastSquares
         self.model = ElementwiseAlternatingLeastSquares(*args, **kwargs)
 
-        self.show_loss = True
+        self.show_loss = False
 
-    def fit(self, user_items):
+    def fit(self, item_users):
         # fit the wrapped model
-        self.model.fit(user_items, 
+        self.model.fit(item_users, 
                        show_loss=self.show_loss)
    
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
-        users, items  = user_items.shape
+        items, users   = item_users.shape
         self.user_factors = self.model.user_factors
         self.item_factors = self.model.item_factors,
 
