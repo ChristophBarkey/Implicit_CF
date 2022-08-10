@@ -18,11 +18,11 @@ class eALSAdaptor(MatrixFactorizationBase):
     def fit(self, item_users):
         # fit the wrapped model
         self.model.fit(item_users, 
-                       show_loss=self.show_loss)
+                        num_threads=self.num_threads,
+                        show_loss=self.show_loss)
    
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
-        items, users   = item_users.shape
         self.user_factors = self.model.user_factors
         self.item_factors = self.model.item_factors,
 
