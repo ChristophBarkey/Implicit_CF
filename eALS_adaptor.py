@@ -15,10 +15,9 @@ class eALSAdaptor(MatrixFactorizationBase):
         self.show_loss = False
         self.num_threads = num_threads or multiprocessing.cpu_count()
 
-    def fit(self, item_users):
+    def fit(self, user_item):
         # fit the wrapped model
-        self.model.fit(item_users, 
-                        num_threads=self.num_threads,
+        self.model.fit(user_item, 
                         show_loss=self.show_loss)
    
         # convert model attributes back to this class, so that
