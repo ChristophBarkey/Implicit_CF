@@ -2,7 +2,7 @@
 import numpy as np
 import multiprocessing
 
-from implicit.cpu import MatrixFactorizationBase
+from implicit.cpu.matrix_factorization_base import MatrixFactorizationBase
 
 class eALSAdaptor(MatrixFactorizationBase):
     def __init__(self, *args, **kwargs):
