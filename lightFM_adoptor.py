@@ -35,3 +35,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
                                             axis=1).copy()
 
 
+    def save(self):
+        pass
+
+
