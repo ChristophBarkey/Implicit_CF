@@ -1,6 +1,7 @@
 # %%
 import pandas as pd
 import numpy as np
+from pyrsistent import v
 from scipy.sparse import coo_matrix, csr_matrix
 
 
@@ -18,7 +19,12 @@ class DataLoader:
             agco_loc = pd.read_csv('loc_agco_new.csv', sep = '|', low_memory=False)
     
             if file == 'CO':
-                agco_cod = pd.read_csv('cod_agco_new.csv', sep = '|', low_memory=False)
+                agco_cod_18 = pd.read_csv('cod_agco_new_2018.csv', sep = '|', low_memory=False)
+                agco_cod_19 = pd.read_csv('cod_agco_new_2019.csv', sep = '|', low_memory=False)
+                agco_cod_20 = pd.read_csv('cod_agco_new_2020.csv', sep = '|', low_memory=False)
+                agco_cod_21 = pd.read_csv('cod_agco_new_2021.csv', sep = '|', low_memory=False)
+                
+                agco_cod = pd.concat([agco_cod_18, agco_cod_19, agco_cod_20, agco_cod_21])
                 copod_loc = pd.merge(agco_cod, agco_loc, left_on='supply_location_id', right_on='location_id', how='inner')
         
             
