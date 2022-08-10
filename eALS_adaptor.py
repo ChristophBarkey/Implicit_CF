@@ -23,7 +23,7 @@ class eALSAdaptor(MatrixFactorizationBase):
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
         self.user_factors = self.model.user_factors
-        self.item_factors = self.model.item_factors,
+        self.item_factors = self.model.item_factors
 
     def save(self):
         pass
