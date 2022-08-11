@@ -345,6 +345,7 @@ class CrossValidation:
         return ret
 
     def hyperp_tuning_simple(self, test, train, param_space, model_class):
+        # test and train are csr_matrices, not dicts!!
         # prepare parameter space dict
         keys, values = zip(*param_space.items())
 
@@ -361,7 +362,14 @@ class CrossValidation:
             
             #evaluate model on train/test with k_fold_eval
             model = self.get_model(r, model_class)
-            model.fit(train)
+            try:
+                model.fit(train_temp, show_progress=False)
+            
+            # if Nan appears in factors, they are transformed to 0 and the param combination printed out
+            except:
+                model.user_factors[np.isnan(model.user_factors)] = 0
+                model.item_factors[np.isnan(model.item_factors)] = 0
+                print(r)
 
             res = self.evaluate_model(model, train, test, 10)
 
