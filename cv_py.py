@@ -5,6 +5,7 @@ from implicit.evaluation import train_test_split, ranking_metrics_at_k
 #from implicit.datasets.movielens import get_movielens
 import implicit
 from eals import ElementwiseAlternatingLeastSquares, load_model
+from eALS_adaptor import eALSAdaptor
 from itertools import product
 
 
@@ -254,15 +255,6 @@ class CrossValidation:
             if model_class == 'eALS':
                 model.fit(train_temp)
 
-                #create empty implicit model
-                temp_model = implicit.als.AlternatingLeastSquares()
-
-                #copy factors from fitted eals model to empty implicit model
-                temp_model.user_factors = model.user_factors
-                temp_model.item_factors = model.item_factors
-
-                #continue with implicit model to enable evaluation methods
-                model = temp_model
             else:
                 # for the BPR model sometimes NaNs appear in the factors and an error interrupts the tuning
                 try:
@@ -419,7 +411,7 @@ class CrossValidation:
             regularization=p['regularization'], iterations=p['iterations'])
 
         if model_class == 'eALS':
-            model = ElementwiseAlternatingLeastSquares(factors=p['factors'], alpha=p['alpha'], 
+            model = eALSAdaptor(factors=p['factors'], alpha=p['alpha'], 
             regularization=p['regularization'], w0=p['w0'])
         
         return model
