@@ -363,7 +363,7 @@ class CrossValidation:
             #evaluate model on train/test with k_fold_eval
             model = self.get_model(r, model_class)
             try:
-                model.fit(train_temp, show_progress=False)
+                model.fit(train, show_progress=False)
             
             # if Nan appears in factors, they are transformed to 0 and the param combination printed out
             except:
