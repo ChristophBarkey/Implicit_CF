@@ -5,14 +5,14 @@ import multiprocessing
 from implicit.cpu.matrix_factorization_base import MatrixFactorizationBase
 
 class eALSAdaptor(MatrixFactorizationBase):
-    def __init__(self, num_threads=0, *args, **kwargs):
+    def __init__(self, num_threads=0, show_loss=False, *args, **kwargs):
         super(eALSAdaptor, self).__init__()
 
         # create a LightFM model using the supplied parameters
         from eals import ElementwiseAlternatingLeastSquares
         self.model = ElementwiseAlternatingLeastSquares(*args, **kwargs)
 
-        self.show_loss = False
+        self.show_loss = show_loss
         self.num_threads = num_threads or multiprocessing.cpu_count()
 
     def fit(self, user_item):
