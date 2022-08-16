@@ -23,6 +23,7 @@ class eALSAdaptor(MatrixFactorizationBase):
         self.user_factors = self.model.user_factors
         self.item_factors = self.model.item_factors
 
+    # just to avoid error: cannot instantiate abstract class with abstract method save
     def save(self):
         pass
 
