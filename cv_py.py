@@ -175,7 +175,7 @@ class CrossValidation:
 
     
 
-    def evaluate_model(self, model, train, test, exclude=None, k):
+    def evaluate_model(self, model, train, test, k, exclude=None):
         """" Evaluation Function
 
         Wrapper function including the ranking_at_k_metrics and the MPR metric, returning one frame with all metrics
@@ -308,7 +308,7 @@ class CrossValidation:
                     print(r)
 
             # after fitting the model, it is evaluated. Using k=10 as default for ranking_matrics_at_k
-            m = self.evaluate_model(model, train_temp, test_temp, exclude, 10)
+            m = self.evaluate_model(model, train_temp, test_temp, 10, exclude)
             if i == 0:
                 df = m
             else :
