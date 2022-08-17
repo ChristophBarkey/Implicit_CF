@@ -102,12 +102,14 @@ class CrossValidation:
 
     # new MPR function applying the exact formula, considering the real rt values
     # Fast for smaller matrices, crashes for large matrices
-    def mpr_new(self, model, train, test):
+    def mpr_new(self, model, train, test, exclude):
         num_users = test.shape[0]
         num_items = test.shape[1]
         
-        # get recommendations for all users and all items
-        rec_items = model.recommend(np.arange(num_users), train, num_items)[0]
+        disregard_obs = (train + exclude)
+
+        # get recommendations for all users and all items, but the train + exclude ones
+        rec_items = model.recommend(np.arange(num_users), disregard_obs, num_items)[0]
 
         # generate rank matrix with equal dimensions
         rank = np.array([np.arange(num_items) / (num_items-1)])
@@ -152,7 +154,7 @@ class CrossValidation:
 
     
 
-    def evaluate_model(self, model, train, test, k):
+    def evaluate_model(self, model, train, test, exclude, k):
         """" Evaluation Function
 
         Wrapper function including the ranking_at_k_metrics and the MPR metric, returning one frame with all metrics
@@ -173,9 +175,10 @@ class CrossValidation:
         metrics : dataframe
             Pandas dataframe containing all metrics
         """
-        metrics = ranking_metrics_at_k(model, train, test, K=k, show_progress=False)
+        disregard_obs = (train + exclude)
+        metrics = ranking_metrics_at_k(model, disregard_obs, test, K=k, show_progress=False)
         #mpr = self.calc_mpr(model, train, test)
-        mpr = self.mpr_new(model, train, test)
+        mpr = self.mpr_new(model, train, test, exclude)
         metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
    
@@ -213,7 +216,7 @@ class CrossValidation:
 
 
         # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
-    def k_fold_eval(self, test, train, r, model_class, seed, return_type) :
+    def k_fold_eval(self, test, train, exclude, r, model_class, seed, return_type) :
         """" K-fold evaluation
 
         Function to evaluate one model with given parameter combination k times, applying the k-fold crossvalidation
@@ -267,7 +270,7 @@ class CrossValidation:
                     print(r)
 
             # after fitting the model, it is evaluated. Using k=10 as default for ranking_matrics_at_k
-            m = self.evaluate_model(model, train_temp, test_temp, 10)
+            m = self.evaluate_model(model, train_temp, test_temp, exclude, 10)
             if i == 0:
                 df = m
             else :
@@ -277,7 +280,7 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def hyperp_tuning(self, test, train, param_space, model_class, seed, return_type='mean'):
+    def hyperp_tuning(self, test, train, exclude, param_space, model_class, seed, return_type='mean'):
         """" Hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is then evaluated using k-fold CV
@@ -325,7 +328,7 @@ class CrossValidation:
             #model = self.get_model(r, model_class)
             
             #evaluate model on train/test with k_fold_eval
-            res = self.k_fold_eval(test, train, r, model_class, seed, return_type=return_type)
+            res = self.k_fold_eval(test, train, exclude, r, model_class, seed, return_type=return_type)
 
             #create final frame in the first iter
             if first_iter == True:
