@@ -213,7 +213,7 @@ class CrossValidation:
 
 
         # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
-    def k_fold_eval(self, test, train, r, model_class, return_type) :
+    def k_fold_eval(self, test, train, r, model_class, seed, return_type) :
         """" K-fold evaluation
 
         Function to evaluate one model with given parameter combination k times, applying the k-fold crossvalidation
@@ -245,7 +245,7 @@ class CrossValidation:
         for i in range(len(test)) :
 
             # get an empty model according to model_class and parameter combination
-            model = self.get_model(r, model_class)
+            model = self.get_model(r, model_class, seed)
             
             # pick the i-th train and test matrix from the dicts
             test_temp = test[str(i)]
@@ -277,7 +277,7 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def hyperp_tuning(self, test, train, param_space, model_class, return_type='mean'):
+    def hyperp_tuning(self, test, train, param_space, model_class, seed, return_type='mean'):
         """" Hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is then evaluated using k-fold CV
@@ -325,7 +325,7 @@ class CrossValidation:
             #model = self.get_model(r, model_class)
             
             #evaluate model on train/test with k_fold_eval
-            res = self.k_fold_eval(test, train, r, model_class, return_type=return_type)
+            res = self.k_fold_eval(test, train, r, model_class, seed, return_type=return_type)
 
             #create final frame in the first iter
             if first_iter == True:
@@ -344,7 +344,7 @@ class CrossValidation:
         
         return ret
 
-    def hyperp_tuning_simple(self, test, train, param_space, model_class):
+    def hyperp_tuning_simple(self, test, train, param_space, model_class, seed):
         # test and train are csr_matrices, not dicts!!
         # prepare parameter space dict
         keys, values = zip(*param_space.items())
@@ -361,7 +361,7 @@ class CrossValidation:
             #model = self.get_model(r, model_class)
             
             #evaluate model on train/test with k_fold_eval
-            model = self.get_model(r, model_class)
+            model = self.get_model(r, model_class, seed)
             try:
                 model.fit(train, show_progress=False)
             
@@ -391,7 +391,7 @@ class CrossValidation:
         return ret
 
 
-    def get_model(self, p, model_class):
+    def get_model(self, p, model_class, seed):
         """"Method to get model according to class and params
         
         Parameters
@@ -408,19 +408,19 @@ class CrossValidation:
         """
         if model_class == 'iALS':
             model = implicit.als.AlternatingLeastSquares(factors=p['factors'], regularization=p['regularization'], 
-            alpha=p['alpha'], iterations=p['iterations'], num_threads=4)
+            alpha=p['alpha'], iterations=p['iterations'], num_threads=4, random_state=seed)
         
         if model_class == 'LMF':
             model = implicit.lmf.LogisticMatrixFactorization(factors=p['factors'], learning_rate=p['learning_rate'], 
-            regularization=p['regularization'], iterations=p['iterations'], neg_prop=p['neg_prop'])
+            regularization=p['regularization'], iterations=p['iterations'], neg_prop=p['neg_prop'], random_state=seed)
         
         if model_class == 'BPR':
             model = implicit.bpr.BayesianPersonalizedRanking(factors=p['factors'], learning_rate=p['learning_rate'], 
-            regularization=p['regularization'], iterations=p['iterations'])
+            regularization=p['regularization'], iterations=p['iterations'], random_state=seed)
 
         if model_class == 'eALS':
             model = eALSAdaptor(factors=p['factors'], alpha=p['alpha'], 
-            regularization=p['regularization'], w0=p['w0'])
+            regularization=p['regularization'], w0=p['w0'], random_state=seed)
         
         return model
 
