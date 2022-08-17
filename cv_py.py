@@ -102,13 +102,33 @@ class CrossValidation:
 
     # new MPR function applying the exact formula, considering the real rt values
     # Fast for smaller matrices, crashes for large matrices
-    def mpr_new(self, model, train, test, exclude):
+    def mpr_new(self, model, disregard_obs, test):
+        """" MPR calculation function
+
+        Calculates the MPR over all users, disregarding the training items and initial test items.
+        Oriented on the original introduction by Hu. et al. 2008. considering the real observation values.
+        Faster than the per_user version, but crashes for large matrices.
+
+        Parameters
+        ----------
+        model : implicit model
+            Fitted implicit model
+        disregard_obs : csr_matrix
+            csr_matrix of interactions that need to be excluded in th evaluation protocol.
+            Union of train and initial test (exclude)
+            If the method is used individually, plug in train set for disregard_obs
+        test : csr_matrix
+            Matrix containing interactions that were held out for training
+
+        Returns
+        -------
+        mpr : dict
+            Dictionary containing the MPR
+        """
         num_users = test.shape[0]
         num_items = test.shape[1]
-        
-        disregard_obs = (train + exclude)
 
-        # get recommendations for all users and all items, but the train + exclude ones
+        # get recommendations for all users and all items, disregarding the train + exclude obs
         rec_items = model.recommend(np.arange(num_users), disregard_obs, num_items)[0]
 
         # generate rank matrix with equal dimensions
@@ -129,6 +149,7 @@ class CrossValidation:
 
     # new MPR function applying the exact formula, considering the real rt values
     # Works for larger matrices, but a bit slower
+    # Not necessary for existing OEM data, therefore not used
     def MPR_new_per_user(self, model, train, test):
         num_users = test.shape[0]
         num_items = test.shape[1]
@@ -154,7 +175,7 @@ class CrossValidation:
 
     
 
-    def evaluate_model(self, model, train, test, exclude, k):
+    def evaluate_model(self, model, train, test, exclude=None, k):
         """" Evaluation Function
 
         Wrapper function including the ranking_at_k_metrics and the MPR metric, returning one frame with all metrics
@@ -167,6 +188,8 @@ class CrossValidation:
             Matrix used for model training
         test : csr_matrix
             Matrix containing interactions that were held out for training
+        exclude : csr_matrix
+            csr_matrix of interactions that need to be excluded in th evaluation protocol.
         k : int
             Number of top recommendations to be evaluated
 
@@ -175,10 +198,20 @@ class CrossValidation:
         metrics : dataframe
             Pandas dataframe containing all metrics
         """
-        disregard_obs = (train + exclude)
+        # exclude should be defined for the k-fold cv case, in the simplified version not necessary
+        if exclude is not None:
+
+            # observations from train AND the initial test set (exclude) should not be used for evaluation!
+            disregard_obs = (train + exclude)
+        else:
+            # still exclude train observations in the simplified case
+            disregard_obs = train
+
+        # evaluating the model on the validation 
         metrics = ranking_metrics_at_k(model, disregard_obs, test, K=k, show_progress=False)
+       
         #mpr = self.calc_mpr(model, train, test)
-        mpr = self.mpr_new(model, train, test, exclude)
+        mpr = self.mpr_new(model, disregard_obs, test)
         metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
    
@@ -227,12 +260,16 @@ class CrossValidation:
             Dict containing the k test sets
         train : dict of csr_matrices
             Dict containing the k train sets
+        exclude : csr_matrix
+            csr_matrix of interactions that need to be excluded in th evaluation protocol.
         r : dict
             Dict containing the parameter combination. E.g. {'param1' : val1, 'param2' : val2}
             Parameters vary according to the model_class
         model_class : str
             Identifier for the model class. 
             iALS, LMF, BPR, eALS
+        seed : int
+            random_state initializer for the model parameter initialization. 
         return_type : str
             Identifier for the format of the returned frame
             mean, full
@@ -244,10 +281,11 @@ class CrossValidation:
             If return_type=mean, the k folds are averaged, if return_type=full, each fold is returned
         """
 
-        # going through all k iterations
+        # going through all k folds
+        # for i in range(self.k) : cleaner?
         for i in range(len(test)) :
 
-            # get an empty model according to model_class and parameter combination
+            # get an empty model according to model_class and parameter combination and seed
             model = self.get_model(r, model_class, seed)
             
             # pick the i-th train and test matrix from the dicts
@@ -280,7 +318,7 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def hyperp_tuning(self, test, train, exclude, param_space, model_class, seed, return_type='mean'):
+    def hyperp_tuning(self, test, train, exclude, seed, param_space, model_class, return_type='mean'):
         """" Hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is then evaluated using k-fold CV
@@ -291,7 +329,14 @@ class CrossValidation:
             dict of test data, output of split_k_fold()
         train : dict
             dict of test data, output of split_k_fold()
-        space : dict
+        exclude : csr_matrix
+            csr_matrix of interactions that need to be excluded in th evaluation protocol.
+            Usually the test set of the initial data split.
+            The evaluation function considers still the size of the initial matrix and would generate recommendations also for the initially excluded test set!
+        seed : int
+            random_state initializer for the model parameter initialization. 
+            For reproducable results.
+        param_space : dict
             dict of parameters to evaluate. E.g. {'param' : [val1, val2]}
             Parameters for iALS:
                 factors, regularization, alpha, iterations
@@ -323,11 +368,8 @@ class CrossValidation:
         
         #iterate through all param combinations
         for r in result:
-
-            #get model with parameters as indicated
-            #model = self.get_model(r, model_class)
             
-            #evaluate model on train/test with k_fold_eval
+            #evaluate model on k train/test dicts with k_fold_eval method
             res = self.k_fold_eval(test, train, exclude, r, model_class, seed, return_type=return_type)
 
             #create final frame in the first iter
@@ -347,7 +389,42 @@ class CrossValidation:
         
         return ret
 
-    def hyperp_tuning_simple(self, test, train, param_space, model_class, seed):
+    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class):
+        """" Simplified hyperparameter tuning method for implicit models
+
+        Function to evaluate one model class for a given parameter space. Each model is only evaluatd once on a test set
+        Designed for pre-selection of models
+
+        Parameters
+        ----------
+        test : csr_matrix
+            csr_matrix of test data, output of train_test_split()
+        train : csr_matrix
+            csr_matrix of train data, output of train_test_split()
+        seed : int
+            random_state initializer for the model parameter nitialization. 
+            For reproducable results.
+        param_space : dict
+            dict of parameters to evaluate. E.g. {'param' : [val1, val2]}
+            Parameters for iALS:
+                factors, regularization, alpha, iterations
+            Parameters for LMF:
+                factors, learning_rate, regularization, iterations, neg_prop
+            Parameters for BPR:
+                factors, learning_rate, regularization, iterations
+            Parameters for eALS:
+                factors, alpha, regularization, w0
+        model_class : str
+            iALS, LMF, BPR, eALS
+        return_type : str
+            Identifier for the return type of the k-fold eval. Per default 'mean', possible 'full'.
+            Should only be changed, if only one parameter combination is applied
+
+        Returns
+        -------
+        eval_frame : dataframe
+            Pandas dataframe containing all evaluated parameter combinations and the respective metric values
+        """
         # test and train are csr_matrices, not dicts!!
         # prepare parameter space dict
         keys, values = zip(*param_space.items())
@@ -360,10 +437,7 @@ class CrossValidation:
         #iterate through all param combinations
         for r in result:
 
-            #get model with parameters as indicated
-            #model = self.get_model(r, model_class)
-            
-            #evaluate model on train/test with k_fold_eval
+            #get model with parameters as indicated and seed
             model = self.get_model(r, model_class, seed)
             try:
                 model.fit(train, show_progress=False)
@@ -403,6 +477,8 @@ class CrossValidation:
             Dictionary containing one parameter combination. Params vary according to model_class
         model_class : str
             specifying the model class, iALS, LMF, BPR, eALS
+        seed : int
+            random seed for parameter initialization
 
         Returns
         -------
