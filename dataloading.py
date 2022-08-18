@@ -12,6 +12,26 @@ class DataLoader:
 
     # integrated func to load co(d) data and return csr user_item
     def import_data(self, OEM, file, return_type, clip=100) :
+        """"Function to import OEM interaction data
+        Automatically removes interactions with negative quantities (after grouping)
+        
+        Parameters
+        ----------
+        OEM : str
+            Identifier for OEM
+        file : str
+            Identifier for type of interaction, CO or PO
+        return_type : str
+            Identifier for data type to return
+            df yields dataframe, csr yields csr_matrix
+        clip : int, optional
+            Option to clip the purchase quantities at the desired percentile
+
+        Returns
+        -------
+        user_item_data : dataframe or csr_matrix
+            user item data according to input parameters
+        """
         #import pandas as pd
  
         if OEM == 'AGCO':
@@ -69,21 +89,52 @@ class DataLoader:
 
     # function to transform purchase values by log
     def log_scale_df(self, df, epsilon, alpha=1):
+        """"Function to scale the purchase quantities in a logarithmic way.
+        Oriented on the log scaling scheme from Hu et. al. 2008
+
+        Parameters
+        ----------
+        df : dataframe
+            Pandas dataframe with column 'purchases' to be scaled
+        epsilon : float
+            Scaling parameter epsilon. Suggested 0.01
+        alpha : float, optional
+            Scaling parameter alpha, mutipliying the scaled values
+
+        Returns
+        -------
+        df : dataframe
+            Copy of input dataframe, with scaled purchases
+        """
         ret = df.copy()
         ret['purchases'] = alpha * np.log(1 + (df.purchases/epsilon))
         return ret
 
     # function to merge co and po data. if user/item appears in both files, the max purchase is considered, else a full join
-    def merge_co_po(self, co, po):
-        full = pd.merge(co, po, on=['item', 'user'], how='outer')
-        full = full.fillna(0)
-        full['max'] = full[['purchases_x', 'purchases_y']].max(axis=1)
-        ret = full[['user', 'item', 'max']]
-        ret.columns =  ['user', 'item', 'purchases']
-        return ret
+    #def merge_co_po(self, co, po):
+    #    full = pd.merge(co, po, on=['item', 'user'], how='outer')
+    #    full = full.fillna(0)
+    #    full['max'] = full[['purchases_x', 'purchases_y']].max(axis=1)
+    #    ret = full[['user', 'item', 'max']]
+    #    ret.columns =  ['user', 'item', 'purchases']
+    #    return ret
 
     # function to transform the output df of import_agco to a csr matrix
     def to_csr(self, df):
+        """"Function to transform dataframe of user item data to csr_data
+        The users and items will be transformed to running integers, starting with 0
+
+        Parameters
+        ----------
+        df : dataframe
+            Pandas dataframe with user item data
+            Columns: user, item, purchases
+
+        Returns
+        -------
+        csr : csr_matrix
+            Same user item data in sparse csr format
+        """     
         ret = df.copy()
         ret['user'] = pd.Categorical(ret.user).codes
         ret['item'] = pd.Categorical(ret.item).codes
@@ -93,6 +144,21 @@ class DataLoader:
 
     # function to remove lines with items that were only bought by less or equal than n users; 1 per default
     def remove_low_interact_items(self, df, n=1):
+        """"Function to remove interactions where the items were only bought by n or less users
+
+        Parameters
+        ----------
+        df : dataframe
+            Pandas dataframe with column user item data
+        n : int, optional
+            Interactions with number of users <= n will be removed
+            Default 1
+
+        Returns
+        -------
+        df : dataframe
+            Copy of input dataframe, with removed lines
+        """        
         ret = df.copy()
         duplicate_items = ret.item.value_counts() > n
         ret_filtered = ret[ret.item.isin(duplicate_items[duplicate_items].index)]
