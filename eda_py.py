@@ -17,6 +17,20 @@ class EDA:
         return df_agg
 
     def get_user_per_item_frame(self, user_item_co, user_item_po):
+        """" Function to get user per item info and vice versa for two user item matrices
+
+        Parameters
+        ----------
+        user_item_1 : dataframe
+            Pandas dataframe with columns: user, item, purchases
+        user_item_2 : dataframe
+            Pandas dataframe with columns: user, item, purchases
+        
+        Returns
+        -------
+        user_per_item_info : dataframe
+            Pandas dataframe showing user per item info for both entities
+        """
         po_items_per_user = user_item_po.groupby(by=['user']).count()
         co_items_per_user = user_item_co.groupby(by=['user']).count()
         po_users_per_item = user_item_po.groupby(by=['item']).count()
@@ -28,6 +42,20 @@ class EDA:
         return pd.DataFrame([podl_upi, codl_upi, podl_ipu, codl_ipu], index=['podl_upi', 'codl_upi', 'podl_ipu', 'codl_ipu'])
 
     def get_basic_user_item_info(self, user_item_co, user_item_po):
+        """" Function to get basic information about two user item matrices
+
+        Parameters
+        ----------
+        user_item_1 : dataframe
+            Pandas dataframe with columns: user, item, purchases
+        user_item_2 : dataframe
+            Pandas dataframe with columns: user, item, purchases
+        
+        Returns
+        -------
+        user_item_info : dataframe
+            Pandas dataframe showing user item info for both entities
+        """
         sparsity_po = 1-(user_item_po.shape[0] / (user_item_po.user.nunique() * user_item_po['item'].nunique()))
         sparsity_co = 1-(user_item_co.shape[0] / (user_item_co.user.nunique() * user_item_co['item'].nunique()))
         nnz_po = len(user_item_po)
@@ -43,6 +71,42 @@ class EDA:
 
     def get_purchase_histograms(self, user_item_co_a, user_item_co_t, style='seaborn-whitegrid', color='#ae132a', 
     alpha=1, bins=30, title_fsize=25, label_fsize=15, ticks_fsize=10, size=(20, 8), save=False, scale_x='linear', scale_y='linear'):
+        """" Function to generate histograms of purchase quantities for two user item matrices
+
+        Parameters
+        ----------
+        user_item_1 : dataframe
+            Pandas dataframe with columns: user, item, purchases
+        user_item_2 : dataframe
+            Pandas dataframe with columns: user, item, purchases
+        style : str, optional
+            Style of plot, default 'seaborn-whitegrid'
+        color : str, optional
+            Colorcode of bars, default '#ae132a'
+        alpha : int, optional
+            Percentage of transparency, default 1
+        bins : int, optional
+            Number of bins, default 30
+        title_fsize : int, optional
+            Fontsize of title
+        label_size : int, optional
+            Fontsize of labels
+        ticks_fsize : int, optional
+            Fontsize of ticknumbers
+        size : tuple, int, optional
+            Size of plot, (width, height)
+        save : bool, optional
+            Flag, whether to save the plot or not
+        scale_x : str, optional
+            Identifier of x-xaxis scale. Default 'lin' or 'log'
+        scale_y : str, optional
+            Identifier of y-xaxis scale. Default 'lin' or 'log'
+
+        Returns
+        -------
+        histogram : plot
+            Plot of two histograms
+        """
         from matplotlib import pyplot as plt
         plt.style.use(style)
         plt.rcParams['text.usetex'] = True
