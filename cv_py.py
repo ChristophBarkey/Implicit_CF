@@ -439,14 +439,17 @@ class CrossValidation:
 
             #get model with parameters as indicated and seed
             model = self.get_model(r, model_class, seed)
-            try:
-                model.fit(train, show_progress=False)
-            
-            # if Nan appears in factors, they are transformed to 0 and the param combination printed out
-            except:
-                model.user_factors[np.isnan(model.user_factors)] = 0
-                model.item_factors[np.isnan(model.item_factors)] = 0
-                print(r)
+            if model_class == 'eALS':
+                model.fit(train)
+            else:
+                try:
+                    model.fit(train, show_progress=False)
+                
+                # if Nan appears in factors, they are transformed to 0 and the param combination printed out
+                except:
+                    model.user_factors[np.isnan(model.user_factors)] = 0
+                    model.item_factors[np.isnan(model.item_factors)] = 0
+                    print(r)
 
             res = self.evaluate_model(model, train, test, 10)
 
