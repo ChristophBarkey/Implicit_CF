@@ -65,7 +65,7 @@ class DataPreparation:
     
         user_features_terex = pd.read_csv('user_features_terex_new.csv', sep='|')
         available_dealers = self.user_item[['user']].drop_duplicates()
-        user_features_terex = pd.merge(available_dealers, user_features_terex, left_on='user', right_on='group1', how='left')
+        user_features_terex = pd.merge(available_dealers, user_features_terex, left_on='user', right_on='dealer', how='left')
         
         user_features_ret = self._aggregate_features(user_features_terex, features, 'user')
 
