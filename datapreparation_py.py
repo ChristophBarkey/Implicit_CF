@@ -20,7 +20,15 @@ class DataPreparation:
 
 
     def get_input_data(self, user_features=None, item_features=None):
-        """" Function to get the input data for a LightFM model mmm
+        """" Function to get the input data for a LightFM model
+        Parameters
+        ----------
+        user_features : list, optional
+            list of user features to include.
+            Must be of ['country', 'brand', 'currency']
+        item_features : list, optional
+            list of item_features to include
+            Must be of ['group2', 'movement_code', 'cost_class']
 
         Returns
         -------
@@ -57,7 +65,7 @@ class DataPreparation:
     
         user_features_terex = pd.read_csv('user_features_terex_new.csv', sep='|')
         available_dealers = self.user_item[['user']].drop_duplicates()
-        user_features_terex = pd.merge(available_dealers, user_features_terex, left_on='user', right_on='dealer', how='left')
+        user_features_terex = pd.merge(available_dealers, user_features_terex, left_on='user', right_on='group1', how='left')
         
         user_features_ret = self._aggregate_features(user_features_terex, features, 'user')
 
