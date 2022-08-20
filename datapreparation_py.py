@@ -99,8 +99,11 @@ class DataPreparation:
             dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), ui_features)
             
             if instance == 'user':
+                dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), user_features = ui_features)
                 ui_features_sp = dataset_t.build_user_features(ui_tuple, normalize=False)
+            
             if instance == 'item':
+                dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), item_features = ui_features)
                 ui_features_sp = dataset_t.build_item_features(ui_tuple, normalize=False)
 
 
