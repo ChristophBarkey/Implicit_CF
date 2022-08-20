@@ -16,12 +16,14 @@ class LightFMAdaptor(MatrixFactorizationBase):
         self.show_progress = True
         self.num_threads = num_threads or multiprocessing.cpu_count()
 
-    def fit(self, item_users):
+    def fit(self, item_users, *args, **kwargs):
         # fit the wrapped model
-        self.model.fit(item_users.T.tocoo(), 
+        self.model.fit(item_users, 
                        num_threads=self.num_threads,
                        epochs=self.epochs,
-                       verbose=self.show_progress)
+                       verbose=self.show_progress,
+                       *args,
+                       **kwargs)
    
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
