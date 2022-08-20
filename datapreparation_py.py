@@ -59,7 +59,7 @@ class DataPreparation:
         available_dealers = self.user_item[['user']].drop_duplicates()
         user_features_terex = pd.merge(available_dealers, user_features_terex, left_on='user', right_on='dealer', how='left')
         
-        user_features_ret = self._aggregate_features(user_features_terex, features)
+        user_features_ret = self._aggregate_features(user_features_terex, features, 'user')
 
         return user_features_ret
 
@@ -80,7 +80,7 @@ class DataPreparation:
 
         item_sku_features = pd.merge(item_features, skus_terex, on='item_id', how='left')
         
-        item_features_ret = self._aggregate_features(item_sku_features, features)
+        item_features_ret = self._aggregate_features(item_sku_features, features, 'item')
 
         return item_features_ret
 
