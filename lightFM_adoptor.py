@@ -28,12 +28,12 @@ class LightFMAdaptor(MatrixFactorizationBase):
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
         users, items = item_users.shape
-        self.user_factors = np.concatenate((self.model.user_embeddings,
-                                            self.model.user_biases.reshape(users, 1),
+        self.user_factors = np.concatenate((self.model.user_embeddings[:users, :],
+                                            self.model.user_biases[:users].reshape(users, 1),
                                             np.ones((users, 1))), axis=1).copy()
-        self.item_factors = np.concatenate((self.model.item_embeddings,
+        self.item_factors = np.concatenate((self.model.item_embeddings[:items, :],
                                             np.ones((items, 1)),
-                                            self.model.item_biases.reshape(items, 1)),
+                                            self.model.item_biases[:items].reshape(items, 1)),
                                             axis=1).copy()
 
 
