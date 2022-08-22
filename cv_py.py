@@ -502,7 +502,7 @@ class CrossValidation:
 
         if model_class == 'eALS':
             model = eALSAdaptor(factors=p['factors'], alpha=p['alpha'], 
-            regularization=p['regularization'], w0=p['w0'], random_state=seed)
+            regularization=p['regularization'], w0=p['w0'], num_iter=p['iterations'], random_state=seed)
         
         return model
 
