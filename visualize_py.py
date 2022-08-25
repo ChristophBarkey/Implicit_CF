@@ -9,11 +9,12 @@ class Visualize:
     def __init__(self, style):
         if style == 'seaborn':
             plt.style.use('seaborn-whitegrid')
+            plt.rcParams['text.usetex'] = True
+            plt.rcParams['font.family'] = 'serif'
+            plt.rcParams['font.serif'] = 'cm'
         if style == 'science':
             plt.style.use(['science', 'ieee', 'high-vis'])
-        plt.rcParams['text.usetex'] = True
-        plt.rcParams['font.family'] = 'serif'
-        plt.rcParams['font.serif'] = 'cm'
+
 
 
     def get_heatmap(self, result_frame, model_class, save=False):
