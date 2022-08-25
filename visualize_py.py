@@ -10,7 +10,7 @@ class Visualize:
         if style == 'seaborn':
             plt.style.use('seaborn-whitegrid')
         if style == 'science':
-            plt.style.use(['science', 'high-vis'])
+            plt.style.use(['science', 'ieee', 'high-vis'])
         plt.rcParams['text.usetex'] = True
         plt.rcParams['font.family'] = 'serif'
         plt.rcParams['font.serif'] = 'cm'
