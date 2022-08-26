@@ -26,26 +26,45 @@ class DataPreparation:
         user_item : Pandas Dataframe
             Dataframe with the columns ['user', 'item', 'purchases'] 
             Containing the user-item interactions
+
+
+        Attributes
+        ----------
+        user_ite_full : Pandas df
+            user_item df extended with extra columns being user_codes and item_codes.
+            These codes are used for generating csr interaction matrix.
+            Also used to get the correct user and item order as used in the csr data.
+            These orders are necessary to build user and item features.
+        users : Pandas Series
+            Dealers as in user_item but unique values and ordered by user_codes.
+            Used for building user features later. 
+            Specifically to achieve the same mapping for the features as for the interaction matrix.
+        items : Pandas Sereis
+            Items as in  user_items but unique values and orderd by item_codes.
+            Same purpose as the users attr. 
         """
         self.user_item = user_item
         self.user_item_full = self._get_full_user_item()
         self.users = self.user_item_full[['user', 'user_codes']].drop_duplicates(['user', 'user_codes']).sort_values(['user_codes']).user
         self.items = self.user_item_full[['item', 'item_codes']].drop_duplicates(['item', 'item_codes']).sort_values(['item_codes']).item
 
-    def prep(self):
-        self.user_item_full = self._get_full_user_item()
-        self.users = self.user_item_full[['user', 'user_codes']].drop_duplicates(['user', 'user_codes']).sort_values(['user_codes']).user
-        self.items = self.user_item_full[['item', 'item_codes']].drop_duplicates(['item', 'item_codes']).sort_values(['item_codes']).item
 
-    # NEW TEST
+    # helper function to build the user_item_full frame
     def _get_full_user_item(self):
         user_item_full = self.user_item.copy()
         user_item_full['user_codes'] = pd.Categorical(user_item_full.user).codes
         user_item_full['item_codes'] = pd.Categorical(user_item_full.item).codes
         return user_item_full
 
-    # NEW TEST
+
     def get_interaction_data(self):
+        """"
+        Returns
+        -------
+        (interactions, weights) : (csr_matrix, csr_matrix)
+            interaction_matrix marks all user item interactions as 1
+            Weights contains the actual purchase quantities
+        """
         df = self.user_item_full.copy()
         df['ones'] = 1
         weights_coo = coo_matrix((df.purchases, (df.user_codes, df.item_codes)))
@@ -54,8 +73,25 @@ class DataPreparation:
         interactions_csr = interactions_coo.tocsr()
         return (interactions_csr, weights_csr)
 
-    def get_feature_input(self, OEM='TEREX', user_features=None, item_features=None):
 
+    def get_feature_data(self, OEM='TEREX', user_features=None, item_features=None):
+        """"
+        Parameters
+        ----------
+        OEM : str
+            OEM identifier
+        user_features : list, optional
+            list of user features to include.
+            Must be of ['country', 'brand', 'currency']
+        item_features : list, optional
+            list of item_features to include
+            Must be of ['group2', 'movement_code', 'cost_class']     
+
+        Returns
+        -------
+        [user_features, item_features] : list(csr_matrix, csr_matrix)
+            user_feature matrix and item_feature matrix for lightfm model
+        """
         return_list = []
         
         if user_features is not None:
@@ -68,40 +104,39 @@ class DataPreparation:
 
         return return_list
 
+    # OLD METHOD --> USE get_interaction_data + get_feature_data
+    #def get_input_data(self, OEM, user_features=None, item_features=None):
+    #    """" Function to get the input data for a LightFM model
+    #    Parameters
+    #    ----------
+    #    user_features : list, optional
+    #        list of user features to include.
+    #        Must be of ['country', 'brand', 'currency']
+    #    item_features : list, optional
+    #        list of item_features to include
+    #        Must be of ['group2', 'movement_code', 'cost_class']
+    #    Returns
+    #    -------
+    #    (interactions, weights, user_features) : tuple(coo_matrix, coo_matrix, csr_matrix)
+    #        Data prepared for input for LightFM model
+    #    """
 
-    def get_input_data(self, OEM, user_features=None, item_features=None):
-        """" Function to get the input data for a LightFM model
-        Parameters
-        ----------
-        user_features : list, optional
-            list of user features to include.
-            Must be of ['country', 'brand', 'currency']
-        item_features : list, optional
-            list of item_features to include
-            Must be of ['group2', 'movement_code', 'cost_class']
+    #    dataset_t = Dataset()
+    #    dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique())
 
-        Returns
-        -------
-        (interactions, weights, user_features) : tuple(coo_matrix, coo_matrix, csr_matrix)
-            Data prepared for input for LightFM model
-        """
+    #    interactions_matrix, weights_matrix = dataset_t.build_interactions([tuple(i) for i in self.user_item.values])
 
-        dataset_t = Dataset()
-        dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique())
-
-        interactions_matrix, weights_matrix = dataset_t.build_interactions([tuple(i) for i in self.user_item.values])
-
-        return_list = [interactions_matrix, weights_matrix]
+    #    return_list = [interactions_matrix, weights_matrix]
         
-        if user_features is not None:
-            user_features_sp = self._get_user_features(OEM, user_features)
-            return_list.append(user_features_sp)
+    #    if user_features is not None:
+    #        user_features_sp = self._get_user_features(OEM, user_features)
+    #        return_list.append(user_features_sp)
 
-        if item_features is not None:
-            item_features_sp = self._get_item_features(OEM, item_features)
-            return_list.append(item_features_sp)
+    #    if item_features is not None:
+    #        item_features_sp = self._get_item_features(OEM, item_features)
+    #        return_list.append(item_features_sp)
 
-        return return_list
+    #    return return_list
 
 
     def _get_user_features(self, OEM, features):
@@ -163,15 +198,20 @@ class DataPreparation:
             ui_tuple = self._get_feature_tuple(uif_temp)
 
             dataset_t = Dataset()
-            #dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), ui_features)
             
             if instance == 'user':
+                # old version: users and items as in file. But different order as in csr interaction matrix!
                 #dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), user_features = ui_features)
+
+                # users and items orderd as in interaction data, as these are used for index mapping for feature matrices
                 dataset_t.fit(self.users, self.items, user_features = ui_features)
                 ui_features_sp = dataset_t.build_user_features(ui_tuple, normalize=False)
             
             if instance == 'item':
+                # old version: users and items as in file. But different order as in csr interaction matrix!
                 #dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), item_features = ui_features)
+
+                # users and items orderd as in interaction data, as these are used for index mapping for feature matrices
                 dataset_t.fit(self.users, self.items, item_features = ui_features)
                 ui_features_sp = dataset_t.build_item_features(ui_tuple, normalize=False)
 
