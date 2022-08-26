@@ -34,8 +34,8 @@ class DataPreparation:
 
     def prep(self):
         self.user_item_full = self._get_full_user_item()
-        self.users = self.user_item_full[['item', 'item_codes']].drop_duplicates(['item', 'item_codes']).sort_values(['item_codes']).item
-        self.items = self.user_item_full[['user', 'user_codes']].drop_duplicates(['user', 'user_codes']).sort_values(['user_codes']).user
+        self.users = self.user_item_full[['user', 'user_codes']].drop_duplicates(['user', 'user_codes']).sort_values(['user_codes']).user
+        self.items = self.user_item_full[['item', 'item_codes']].drop_duplicates(['item', 'item_codes']).sort_values(['user_codes']).item
 
     # NEW TEST
     def _get_full_user_item(self):
