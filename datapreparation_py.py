@@ -41,7 +41,7 @@ class DataPreparation:
         user_item_full = self.user_item.copy()
         user_item_full['user_codes'] = pd.Categorical(user_item_full.user).codes
         user_item_full['item_codes'] = pd.Categorical(user_item_full.item).codes
-        return uesr_item_full
+        return user_item_full
 
     # NEW TEST
     def get_interaction_data(self):
