@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from lightfm.data import Dataset
 import scipy.sparse as sparse
+from scipy.sparse import coo_matrix
 
 class DataPreparation:
 
