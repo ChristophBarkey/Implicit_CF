@@ -19,7 +19,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
         self.model.fit(interactions=interactions, 
                         user_features = user_features, 
                         item_features = item_features, 
-                        sample_weight = weights,
+                        sample_weight = weights.tocoo(),
                         num_threads=self.num_threads,
                         epochs=iterations,
                         verbose=self.show_progress,)
