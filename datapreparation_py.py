@@ -28,9 +28,9 @@ class DataPreparation:
             Containing the user-item interactions
         """
         self.user_item = user_item
-        self.user_item_full = None
-        self.users = None
-        self.items = None
+        self.user_item_full = self._get_full_user_item()
+        self.users = self.user_item_full[['user', 'user_codes']].drop_duplicates(['user', 'user_codes']).sort_values(['user_codes']).user
+        self.items = self.user_item_full[['item', 'item_codes']].drop_duplicates(['item', 'item_codes']).sort_values(['item_codes']).item
 
     def prep(self):
         self.user_item_full = self._get_full_user_item()
