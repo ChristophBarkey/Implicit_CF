@@ -66,11 +66,9 @@ class DataPreparation:
             Weights contains the actual purchase quantities
         """
         df = self.user_item_full.copy()
-        df['ones'] = 1
         weights_coo = coo_matrix((df.purchases, (df.user_codes, df.item_codes)))
-        interactions_coo = coo_matrix((df.ones, (df.user_codes, df.item_codes)))
         weights_csr = weights_coo.tocsr()
-        interactions_csr = interactions_coo.tocsr()
+        interactions_csr = weights_csr.sign()
         return (interactions_csr, weights_csr)
 
 
