@@ -14,9 +14,9 @@ class eALSAdaptor(MatrixFactorizationBase):
 
         self.num_threads = num_threads or multiprocessing.cpu_count()
 
-    def fit(self, user_item, show_loss=False):
+    def fit(self, user_item, show_progress=False):
         # fit the wrapped model
-        self.model.fit(user_item, show_loss=show_loss)
+        self.model.fit(user_item, show_loss=show_progress)
    
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
