@@ -250,8 +250,8 @@ class DataPreparation:
 
     def _add_csr(self, csr, add):
         for i in range((add.shape[1]-add.shape[0])):
-            csr = sparse.hstack((csr, add[:,(add.shape[0]+i)].A.T[0][:,None]))
-        return csr
+            csr_ret = sparse.hstack((csr, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
+        return csr_ret
 
     def _map_dealer_size(self, user_features):
         user_features_temp = user_features.copy()
