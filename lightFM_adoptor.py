@@ -15,12 +15,15 @@ class LightFMAdaptor(MatrixFactorizationBase):
         self.num_threads = num_threads or multiprocessing.cpu_count()
 
 
-    def fit(self, interactions, user_features, item_features, weights, show_progress):
+    def fit(self, interactions, user_features=None, item_features=None, weights=None, show_progress=False):
         # fit the wrapped model
         self.model.fit(interactions=interactions, 
                         user_features = user_features, 
                         item_features = item_features, 
-                        sample_weight = weights.tocoo(),
+                        if weights is not None:
+                            sample_weight = weights.tocoo(),
+                        else:
+                            sample_weight = weights
                         num_threads=self.num_threads,
                         epochs=self.iterations,
                         verbose=show_progress,)
