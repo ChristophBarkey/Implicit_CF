@@ -23,10 +23,10 @@ class LightFMAdaptor(MatrixFactorizationBase):
                         if weights is not None:
                             sample_weight = weights.tocoo(),
                         else:
-                            sample_weight = weights
+                            sample_weight = weights,
                         num_threads=self.num_threads,
                         epochs=self.iterations,
-                        verbose=show_progress,)
+                        verbose=show_progress)
    
         # convert model attributes back to this class, so that
         # the recommend/similar_items etc calls on the base class will work
