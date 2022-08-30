@@ -6,12 +6,13 @@ from implicit.evaluation import train_test_split, ranking_metrics_at_k
 import implicit
 from eals import ElementwiseAlternatingLeastSquares, load_model
 from eALS_adaptor import eALSAdaptor
+from lightFM_adoptor import LightFMAdaptor
 from itertools import product
 
 
 class CrossValidation:
     
-    def __init__(self, user_item, k):
+    def __init__(self, k):
         """" Crossvalidation
 
         A class for performing k-fold crossvalidation and hyperparameter tuning. 
@@ -23,7 +24,6 @@ class CrossValidation:
         k : int
             Number of folds to be performed in crossvalidation
         """
-        self.user_item = user_item
         self.k = k
 
     # old function
@@ -215,7 +215,7 @@ class CrossValidation:
         metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
    
-    def split_k_fold(self, seed) :
+    def split_k_fold(self, user_item, seed) :
         """" Split k fold
 
         Function to split the attributed user_item matrix k fold
@@ -225,7 +225,6 @@ class CrossValidation:
         (test_dict, train_dict) : (dict of k csr_matrices, dict of k csr_matrices)
             Two dictionaries, containing respectively the train and test data. Each dict contains k csr matrices.
         """
-        split_matrix = self.user_item
         return_dict = {}
         return_dict_train = {}
 
@@ -233,7 +232,7 @@ class CrossValidation:
         for i in range(self.k-1):
 
             # dynamically adjust the splitting proportions
-            train_temp, test_temp = train_test_split(split_matrix, train_percentage=((self.k-(i+1))/(self.k-i)), random_state=seed)
+            train_temp, test_temp = train_test_split(user_item, train_percentage=((self.k-(i+1))/(self.k-i)), random_state=seed)
             return_dict[str(i)] = test_temp
             if i == 0:
                 return_dict_train[str(i)] = train_temp
@@ -244,12 +243,12 @@ class CrossValidation:
             if i == (self.k-2):
                 return_dict[str(i+1)] = train_temp
                 return_dict_train[str(i+1)] = rest
-            split_matrix = train_temp
+            user_item = train_temp
         return (return_dict, return_dict_train)
 
 
         # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
-    def k_fold_eval(self, test, train, exclude, r, model_class, seed, return_type) :
+    def k_fold_eval(self, test, train, exclude, r, model_class, seed, return_type, user_features=None, item_features=None) :
         """" K-fold evaluation
 
         Function to evaluate one model with given parameter combination k times, applying the k-fold crossvalidation
@@ -293,8 +292,8 @@ class CrossValidation:
             train_temp = train[str(i)]
 
             # eALS is from a different library, hence the additional transformation
-            if model_class == 'eALS':
-                model.fit(train_temp)
+            if model_class == 'FM':
+                model.fit(train_temp.sign(), user_features, item_features, train_temp, show_progress=False)
 
             else:
                 # for the BPR model sometimes NaNs appear in the factors and an error interrupts the tuning
@@ -318,7 +317,7 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def hyperp_tuning(self, test, train, exclude, seed, param_space, model_class, return_type='mean'):
+    def hyperp_tuning(self, test, train, exclude, seed, param_space, model_class, return_type='mean', user_features=None, item_features=None):
         """" Hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is then evaluated using k-fold CV
@@ -370,7 +369,8 @@ class CrossValidation:
         for r in result:
             
             #evaluate model on k train/test dicts with k_fold_eval method
-            res = self.k_fold_eval(test, train, exclude, r, model_class, seed, return_type=return_type)
+            res = self.k_fold_eval(test, train, exclude, r, model_class, seed, return_type=return_type, 
+            user_features=user_features, item_features=item_features)
 
             #create final frame in the first iter
             if first_iter == True:
@@ -503,6 +503,10 @@ class CrossValidation:
         if model_class == 'eALS':
             model = eALSAdaptor(factors=p['factors'], alpha=p['alpha'], 
             regularization=p['regularization'], w0=p['w0'], num_iter=p['iterations'], random_state=seed)
+
+        if model_class == 'FM':
+            model = LightFMAdaptor(no_components=p['factors'], learning_rate=p['learning_rate'], loss=p['loss'], item_alpha=p['regularization'], 
+            user_alpha=p['regularization'], max_sampled=p['max_sampled'], iterations=p['iterations'], random_state=seed)
         
         return model
 
