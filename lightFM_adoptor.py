@@ -17,13 +17,14 @@ class LightFMAdaptor(MatrixFactorizationBase):
 
     def fit(self, interactions, user_features=None, item_features=None, weights=None, show_progress=False):
         # fit the wrapped model
+        if weights is not None:
+            sample_weight = weights.tocoo()
+        else:
+            sample_weight = weights
         self.model.fit(interactions=interactions, 
                         user_features = user_features, 
                         item_features = item_features, 
-                        if weights is not None:
-                            sample_weight = weights.tocoo(),
-                        else:
-                            sample_weight = weights,
+                        sample_weight = sample_weight,
                         num_threads=self.num_threads,
                         epochs=self.iterations,
                         verbose=show_progress)
