@@ -389,7 +389,7 @@ class CrossValidation:
         
         return ret
 
-    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class):
+    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class, user_features=None, item_features=None):
         """" Simplified hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is only evaluatd once on a test set
@@ -439,8 +439,9 @@ class CrossValidation:
 
             #get model with parameters as indicated and seed
             model = self.get_model(r, model_class, seed)
-            if model_class == 'eALS':
-                model.fit(train)
+            
+            if model_class == 'FM':
+                model.fit(train.sign(), user_features, item_features, train, show_progress=False)
             else:
                 try:
                     model.fit(train, show_progress=False)
