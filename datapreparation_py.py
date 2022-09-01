@@ -80,7 +80,10 @@ class DataPreparation:
             OEM identifier
         user_features : list, optional
             list of user features to include.
-            Must be of ['country', 'brand', 'currency']
+            Must be of ['country', 'brand', 'currency', 'dealer_size'] OEM#1
+            Must be of ['country', 'brand', 'currency'] OEM#2
+
+            
         item_features : list, optional
             list of item_features to include
             Must be of ['group2', 'movement_code', 'cost_class']     
@@ -169,6 +172,7 @@ class DataPreparation:
         if OEM == 'AGCO':
             items_file = pd.read_csv('items_agco_new.csv', sep='|')
             skus_file = pd.read_csv('skus_agco_new.csv', sep='|', low_memory=False)
+            skus_file = self._map_cps(skus_file)
         if OEM == 'TEREX':
             items_file = pd.read_csv('items_terex_new.csv', sep='|')
             skus_file = pd.read_csv('skus_terex_new.csv', sep='|', low_memory=False)
@@ -187,9 +191,9 @@ class DataPreparation:
     def _aggregate_features(self, features_file, features, instance):   
         for feature in features:
             if instance == 'user':
-                uif_temp = features_file[['dealer', feature]].drop_duplicates(['dealer', feature]).dropna().set_index('dealer')
+                uif_temp = features_file[['dealer', feature]].dropna().set_index('dealer')
             if instance == 'item':
-                uif_temp = features_file[['item', feature]].drop_duplicates(['item', feature]).dropna().set_index('item')
+                uif_temp = features_file[['item', feature]].dropna().set_index('item')
             
             ui_features = self._gather_features(uif_temp)
 
@@ -255,10 +259,20 @@ class DataPreparation:
 
     def _map_dealer_size(self, user_features):
         user_features_temp = user_features.copy()
+        user_features_temp['item_count'] = user_features_temp.item_count.fillna(0)
         col = user_features_temp.item_count
         bins = [col.min(), np.percentile(col, 25), np.percentile(col, 50), np.percentile(col, 75), col.max()]
         names = ['1', '2', '3', '4']
         user_features_temp['dealer_size'] = pd.cut(user_features_temp['item_count'], bins=bins, labels=names)
         return user_features_temp
+
+    def _map_cps(self, skus):
+        skus_temp = skus.copy()
+        skus_temp['comparative_planning_score'] = skus_temp.comparative_planning_score.fillna(0)
+        col = skus_temp.comparative_planning_score
+        bins = [col.min(), np.percentile(col, 25), np.percentile(col, 50), np.percentile(col, 75), col.max()]
+        names = ['1', '2', '3', '4']
+        skus_temp['cps_category'] = pd.cut(skus_temp['comparative_planning_score'], bins=bins, labels=names)
+        return skus_temp
 
 
