@@ -15,7 +15,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
         self.num_threads = num_threads or multiprocessing.cpu_count()
 
 
-    def fit(self, interactions, user_features=None, item_features=None, weights=None, show_progress=False):
+    def fit(self, interactions, user_features=None, item_features=None, weights=None, show_progress=False, transform_factors=True):
         # fit the wrapped model
         if weights is not None:
             sample_weight = weights.tocoo()
@@ -29,11 +29,19 @@ class LightFMAdaptor(MatrixFactorizationBase):
                         epochs=self.iterations,
                         verbose=show_progress)
    
-        # convert model attributes back to this class, so that
-        # the recommend/similar_items etc calls on the base class will work
-        self.user_factors = self._transpose_user_features(user_features, self.model)
-        self.item_factors = self._transpose_item_features(item_features, self.model)
+        if transform_factors:
+            # convert model attributes back to this class, so that
+            # the recommend/similar_items etc calls on the base class will work
+            self.user_factors = self._transpose_user_features(user_features, self.model)
+            self.item_factors = self._transpose_item_features(item_features, self.model)
 
+
+    def evaluate(self, test_interactions, train_interactions, user_features, item_features, k=10):
+        from lightfm.evaluation import precision_at_k, recall_at_k, auc_score, reciprocal_rank
+
+        pk = precision_at_k(model=self.model, test_interactions=test_interactions, train_interactions=train_interactions, 
+        k=k, user_features=user_features, item_features=item_features).mean()
+        return pk
 
     def _transpose_user_features(self, user_features, model):
         num_users = user_features.shape[0]
