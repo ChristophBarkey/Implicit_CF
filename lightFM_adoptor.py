@@ -44,33 +44,42 @@ class LightFMAdaptor(MatrixFactorizationBase):
         return pk
 
     def _transpose_user_features(self, user_features, model):
-        num_users = user_features.shape[0]
-        num_features = user_features.shape[1] - user_features.shape[0]
-        return_embeddings = model.user_embeddings[:num_users].copy()
-        feature_embedding = model.user_embeddings[num_users:].copy()
-        return_biases = model.user_biases[:num_users].copy()
-        feature_biases = model.user_biases[num_users:].copy()
-        for u in range(num_users):
-            for i in range(num_features):
-                weight = user_features[u, num_users+i]
-                return_embeddings[u] += weight * feature_embedding[i]
-                return_biases[u] += weight * feature_biases[i]
-        return np.concatenate((return_embeddings, return_biases.reshape(num_users, 1), np.ones((num_users, 1))), axis=1).copy()
+        if user_features is not None:
+            num_users = user_features.shape[0]
+            num_features = user_features.shape[1] - user_features.shape[0]
+            return_embeddings = model.user_embeddings[:num_users].copy()
+            feature_embedding = model.user_embeddings[num_users:].copy()
+            return_biases = model.user_biases[:num_users].copy()
+            feature_biases = model.user_biases[num_users:].copy()
+            for u in range(num_users):
+                for i in range(num_features):
+                    weight = user_features[u, num_users+i]
+                    return_embeddings[u] += weight * feature_embedding[i]
+                    return_biases[u] += weight * feature_biases[i]
+            return np.concatenate((return_embeddings, return_biases.reshape(num_users, 1), np.ones((num_users, 1))), axis=1).copy()
+        else:
+            num_users = model.user_embeddings.shape[0]
+            return np.concatenate((model.user_embeddings, model.user_biases.reshape(num_users, 1), np.ones((num_users, 1))), axis=1).copy()
+        
 
     def _transpose_item_features(self, item_features, model):
-        num_items = item_features.shape[0]
-        num_features = item_features.shape[1] - item_features.shape[0]
-        return_embeddings = model.item_embeddings[:num_items].copy()
-        feature_embedding = model.item_embeddings[num_items:].copy()
-        return_biases = model.item_biases[:num_items].copy()
-        feature_biases = model.item_biases[num_items:].copy()
-        for u in range(num_items):
-            for i in range(num_features):
-                weight = item_features[u, num_items+i]
-                return_embeddings[u] += weight * feature_embedding[i]
-                return_biases[u] += weight * feature_biases[i]
-        return np.concatenate((return_embeddings, np.ones((num_items, 1)), return_biases.reshape(num_items, 1)), axis=1).copy()
-    
+        if item_features is not None:
+            num_items = item_features.shape[0]
+            num_features = item_features.shape[1] - item_features.shape[0]
+            return_embeddings = model.item_embeddings[:num_items].copy()
+            feature_embedding = model.item_embeddings[num_items:].copy()
+            return_biases = model.item_biases[:num_items].copy()
+            feature_biases = model.item_biases[num_items:].copy()
+            for u in range(num_items):
+                for i in range(num_features):
+                    weight = item_features[u, num_items+i]
+                    return_embeddings[u] += weight * feature_embedding[i]
+                    return_biases[u] += weight * feature_biases[i]
+            return np.concatenate((return_embeddings, np.ones((num_items, 1)), return_biases.reshape(num_items, 1)), axis=1).copy()
+        else:
+            num_items = model.item_embeddings.shape[0]
+            return np.concatenate((model.item_embeddings, model.item_biases.reshape(num_items, 1), np.ones((num_items, 1))), axis=1).copy()
+
     def save(self):
         pass
 
