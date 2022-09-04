@@ -97,6 +97,7 @@ class Visualize:
 
 
     def get_convergence_curves(self, result_frame, save=False):
+    
 
         # data preparation
         p_df = result_frame.pivot(index='iterations', columns='factors', values='precision')
@@ -125,4 +126,29 @@ class Visualize:
         bbox_to_anchor=(0.94, 0.79))
         if save:
             plt.savefig('curves.pdf')
+        plt.show()
+
+
+    def get_comparison_curves(self, precision_df, map_df, ndcg_df, save=False)
+
+        data_df = [precision_df, map_df, ndcg_df]
+        names = ['P@k', 'MAP@k', 'NDCG@k']
+
+        # plotting of the three curves
+        fig, ax = plt.subplots(figsize=(26, 8), nrows=1, ncols=3)
+        plt.subplots_adjust(wspace=0.15, hspace=0.3, right=0.82, bottom=0.25)
+        c = 0
+        for i in range(3):
+            data_filtered = data_df[c]
+            ax[i].plot(data_filtered, linestyle='-', marker='o', linewidth=2)
+            ax[i].set_title(names[c], fontsize=30)
+            ax[i].set_xlabel('k', fontsize=25)
+            ax[i].tick_params(axis='both', which='major', labelsize=17)
+            ax[i].tick_params(axis='both', which='minor', labelsize=17)
+            ax[i].autoscale()
+            ax[i].grid(linestyle=':')
+            c += 1
+        fig.legend(data_filtered.columns, loc='lower center', ncol=4, title='Model',fancybox=True, shadow=False, frameon=True, title_fontsize=25, fontsize=20)
+        if save:
+            plt.savefig('comparison.pdf')
         plt.show()
