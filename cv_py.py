@@ -473,6 +473,17 @@ class CrossValidation:
         return ret
 
 
+    def evaluate_at_k(self, space, model_class, train, test, max_k):
+        for k in range(max_k):
+            eval_df = self.hyperp_tuning_simple(test=test, train=train, seed=22, param_space=space, model_class=model_class, eval_k=k+1)
+            eval_df.index = [k+1]
+            if k == 0:
+                res_df = eval_df
+            else:
+                res_df = pd.concat([res_df, eval_df], axis=0)       
+        return res_df 
+
+
     def get_model(self, p, model_class, seed):
         """"Method to get model according to class and params
         
