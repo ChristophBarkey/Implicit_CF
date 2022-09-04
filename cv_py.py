@@ -443,9 +443,6 @@ class CrossValidation:
             if model_class == 'FM':
                 model.fit(train.sign(), user_features, item_features, train, show_progress=False)
 
-            if model_class == 'LightFM':
-
-
             else:
                 try:
                     model.fit(train, show_progress=False)
