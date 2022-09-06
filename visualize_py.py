@@ -129,7 +129,7 @@ class Visualize:
         plt.show()
 
 
-    def get_comparison_curves(self, precision_df, map_df, ndcg_df, save=False)
+    def get_comparison_curves(self, precision_df, map_df, ndcg_df, save=False):
 
         data_df = [precision_df, map_df, ndcg_df]
         names = ['P@k', 'MAP@k', 'NDCG@k']
