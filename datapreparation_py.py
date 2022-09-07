@@ -83,10 +83,10 @@ class DataPreparation:
             Must be of ['country', 'brand', 'currency', 'dealer_size'] OEM#1
             Must be of ['country', 'brand', 'currency'] OEM#2
 
-            
         item_features : list, optional
             list of item_features to include
-            Must be of ['group2', 'movement_code', 'cost_class']     
+            Must be of ['group2', 'movement_code', 'cost_class', 'cps_category'] OEM#1     
+            Must be of ['group2', 'movement_code', 'cost_class'] OEM#2    
 
         Returns
         -------
