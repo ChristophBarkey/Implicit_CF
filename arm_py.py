@@ -12,9 +12,11 @@ def arm_dataprep():
     duplicate_co_id = ret.co_id.value_counts() > 1
     ret_filtered = ret[ret.co_id.isin(duplicate_co_id[duplicate_co_id].index)]
 
-    transaction_list = ret_filtered.groupby('co_id')['item_id'].apply(list)
+    transaction_list = list(ret_filtered.groupby('co_id')['item_id'].apply(list))
 
-    return list(transaction_list)
+    user_item = orders_filtered[['user', 'item_id']]
+
+    return (transaction_list, user_item)
 
 class AssociationRuleMining:
 
