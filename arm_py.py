@@ -46,7 +46,7 @@ class AssociationRuleMining:
 
             df_inside_unlisted = self._unlist_df(df_inside.unfrozen)
 
-            df_outside = df_inside_unlisted[np.invert(df_inside_unlisted.unlisted.isin(items_u.item_id))]
+            df_outside = df_inside_unlisted[np.invert(df_inside_unlisted.unlisted.isin(items_u.item_id))].drop_duplicates()
 
             return_dict.update({u : list(df_outside.unlisted.values)})
 
