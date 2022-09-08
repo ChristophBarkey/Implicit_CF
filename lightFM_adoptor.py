@@ -53,8 +53,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
             feature_biases = model.user_biases[num_users:].copy()
             for u in range(num_users):
                 for i in range(num_features):
-                    #weight = user_features[u, num_users+i]
-                    weight = 1
+                    weight = user_features[u, num_users+i]
                     return_embeddings[u] += weight * feature_embedding[i]
                     return_biases[u] += weight * feature_biases[i]
             return np.concatenate((return_embeddings, return_biases.reshape(num_users, 1), np.ones((num_users, 1))), axis=1).copy()
@@ -73,8 +72,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
             feature_biases = model.item_biases[num_items:].copy()
             for u in range(num_items):
                 for i in range(num_features):
-                    #weight = item_features[u, num_items+i]
-                    weight = 1
+                    weight = item_features[u, num_items+i]
                     return_embeddings[u] += weight * feature_embedding[i]
                     return_biases[u] += weight * feature_biases[i]
             return np.concatenate((return_embeddings, np.ones((num_items, 1)), return_biases.reshape(num_items, 1)), axis=1).copy()
