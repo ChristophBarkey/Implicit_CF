@@ -3,6 +3,19 @@ import pandas as pd
 import numpy as np
 from apyori import apriori
 
+def arm_dataprep():
+    transactions_t = pd.read_csv('cod_terex_new.csv', sep='|', low_memory=False)
+    locations_t = pd.read_csv('loc_terex_new.csv', sep = '|', low_memory=False)
+    orders_filtered = pd.merge(transactions_t, locations_t, left_on='supply_location_id', right_on='location_id', how='inner')
+
+    ret = orders_filtered.copy()
+    duplicate_co_id = ret.co_id.value_counts() > 1
+    ret_filtered = ret[ret.co_id.isin(duplicate_co_id[duplicate_co_id].index)]
+
+    transaction_list = ret_filtered.groupby('co_id')['item_id'].apply(list)
+
+    return list(transaction_list)
+
 class AssociationRuleMining:
 
     def __init__(self, min_support=0.1, min_confidence=0.0):
@@ -85,5 +98,6 @@ class AssociationRuleMining:
             for j in range(len(df_listed[i])):
                 unlisted.append(df_listed[i][j])
         return pd.DataFrame({'unlisted' : unlisted})
+
 
 
