@@ -253,11 +253,14 @@ class DataPreparation:
         return lil.tocsr()
 
     def _add_csr(self, csr, add):
-        for i in range((add.shape[1]-add.shape[0])):
-            if i == 0:
-                csr_ret = sparse.hstack((csr, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
-            else:
-                csr_ret = sparse.hstack((csr_ret, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
+        num_identity = csr.shape[0]
+        features_only = add[:, num_identity:]
+        csr_ret = sparse.hstack((csr, features_only), format='csr')
+        #for i in range((add.shape[1]-add.shape[0])):
+         #   if i == 0:
+          #      csr_ret = sparse.hstack((csr, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
+           # else:
+            #    csr_ret = sparse.hstack((csr_ret, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
         return csr_ret
 
     def _map_dealer_size(self, user_features):
