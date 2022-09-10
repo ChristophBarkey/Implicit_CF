@@ -389,7 +389,7 @@ class CrossValidation:
         
         return ret
 
-    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class, user_features=None, item_features=None, eval_k=10, no_weights=False
+    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class, user_features=None, item_features=None, eval_k=10, no_weights=False,
     exclude=None):
         """" Simplified hyperparameter tuning method for implicit models
 
