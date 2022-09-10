@@ -389,7 +389,8 @@ class CrossValidation:
         
         return ret
 
-    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class, user_features=None, item_features=None, eval_k=10, no_weights=False):
+    def hyperp_tuning_simple(self, test, train, seed, param_space, model_class, user_features=None, item_features=None, eval_k=10, no_weights=False
+    exclude=None):
         """" Simplified hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is only evaluatd once on a test set
@@ -456,7 +457,7 @@ class CrossValidation:
                     model.item_factors[np.isnan(model.item_factors)] = 0
                     print(r)
 
-            res = self.evaluate_model(model, train, test, eval_k)
+            res = self.evaluate_model(model, train, test, eval_k, exclude)
 
             #create final frame in the first iter
             if first_iter == True:
