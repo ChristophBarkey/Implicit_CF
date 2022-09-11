@@ -32,8 +32,8 @@ class LightFMAdaptor(MatrixFactorizationBase):
         if transform_factors:
             # convert model attributes back to this class, so that
             # the recommend/similar_items etc calls on the base class will work
-            self.user_factors = self._transpose_user_features(user_features, self.model)
-            self.item_factors = self._transpose_item_features(item_features, self.model)
+            self.user_factors = self._transpose_features(user_features, self.model.user_embeddings, self.model.user_biases, 'user')
+            self.item_factors = self._transpose_features(item_features, self.model.item_embeddings, self.model.item_biases, 'item')
 
 
     def evaluate(self, test_interactions, train_interactions, user_features, item_features, k=10):
@@ -43,6 +43,38 @@ class LightFMAdaptor(MatrixFactorizationBase):
         k=k, user_features=user_features, item_features=item_features).mean()
         return pk
 
+
+
+    def _transpose_features(self, features, embeddings, biases, instance):
+        if features is not None:
+            num_ui = features.shape[0]
+            num_features = features.shape[1] - features.shape[0]
+            return_embeddings = embeddings[:num_ui].copy()
+            feature_embedding = embeddings[num_ui:].copy()
+            return_biases = biases[:num_ui].copy()
+            feature_biases = biases[num_ui:].copy()
+            weights_u = features[0, num_ui:].toarray().T
+            for u in range(num_ui):
+                embedding_add = [weights_u[i] * feature_embedding[i] for i in range(num_features)]
+                emb_arr = np.array(embedding_add).sum(axis=0)
+                biases_add = [weights_u[i] * feature_biases[i] for i in range(num_features)]
+                bias_arr = np.array(biases_add).sum(axis=0)
+                return_embeddings[u] += emb_arr
+                return_biases[u] += bias_arr
+                
+            if instance == 'user':
+                return np.concatenate((return_embeddings, return_biases.reshape(num_ui, 1), np.ones((num_ui, 1))), axis=1).copy()
+            if instance == 'item':
+                return np.concatenate((return_embeddings, np.ones((num_ui, 1)), return_biases.reshape(num_ui, 1)), axis=1).copy()          
+        else:
+            num_ui = embeddings.shape[0]
+            if instance == 'user':
+                return np.concatenate((embeddings, biases.reshape(num_ui, 1), np.ones((num_ui, 1))), axis=1).copy()
+            if instance == 'item':
+                return np.concatenate((embeddings, np.ones((num_ui, 1)), biases.reshape(num_items, 1)), axis=1).copy()
+
+
+    # deprecated by transpose_features!!
     def _transpose_user_features(self, user_features, model):
         if user_features is not None:
             num_users = user_features.shape[0]
@@ -62,6 +94,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
             return np.concatenate((model.user_embeddings, model.user_biases.reshape(num_users, 1), np.ones((num_users, 1))), axis=1).copy()
         
 
+    # deprecated by transpose_features!!
     def _transpose_item_features(self, item_features, model):
         if item_features is not None:
             num_items = item_features.shape[0]
