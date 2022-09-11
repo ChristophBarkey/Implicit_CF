@@ -71,7 +71,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
             if instance == 'user':
                 return np.concatenate((embeddings, biases.reshape(num_ui, 1), np.ones((num_ui, 1))), axis=1).copy()
             if instance == 'item':
-                return np.concatenate((embeddings, np.ones((num_ui, 1)), biases.reshape(num_items, 1)), axis=1).copy()
+                return np.concatenate((embeddings, np.ones((num_ui, 1)), biases.reshape(num_ui, 1)), axis=1).copy()
 
 
     # deprecated by transpose_features!!
