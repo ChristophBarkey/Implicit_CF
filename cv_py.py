@@ -488,6 +488,23 @@ class CrossValidation:
         return res_df 
 
 
+    def tune_FM(self, space, user_f, item_f, uf_names, if_names, train, test, exclude):
+
+        for u in range(len(user_f)):
+            for i in range(len(item_f)):
+                res = self.hyperp_tuning_simple(test=test, train=train, seed=22, param_space=space, model_class='FM', user_features=user_f[u], 
+                item_features=item_f[i], exclude=exclude)
+                res['uf_name'] = uf_names[u]
+                res['if_name'] = if_names[i]
+
+                if u == 0 & i == 0:
+                    ret_df = res
+                else:
+                    ret_df = pd.concat([ret_df, res], axis=0)
+        
+        return ret_df
+
+
     def get_model(self, p, model_class, seed):
         """"Method to get model according to class and params
         
