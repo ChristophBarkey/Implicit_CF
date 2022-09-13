@@ -48,22 +48,17 @@ class LightFMAdaptor(MatrixFactorizationBase):
     def _transpose_features(self, features, embeddings, biases, instance):
         if features is not None:
             num_ui = features.shape[0]
-            num_features = features.shape[1] - features.shape[0]
             return_embeddings = embeddings[:num_ui].copy()
             feature_embedding = embeddings[num_ui:].copy()
             return_biases = biases[:num_ui].copy()
             feature_biases = biases[num_ui:].copy()
             
-            for u in range(num_ui):
-                weights_u = features[u, num_ui:].toarray().T[:, 0]
-                #embedding_add = [weights_u[i] * feature_embedding[i] for i in range(num_features)]
-                #emb_arr = np.array(embedding_add).sum(axis=0)
-                emb_arr = weights_u.dot(feature_embedding)
-                #biases_add = [weights_u[i] * feature_biases[i] for i in range(num_features)]
-                #bias_arr = np.array(biases_add).sum(axis=0)
-                bias_arr = weights_u.dot(feature_biases)
-                return_embeddings[u] += emb_arr
-                return_biases[u] += bias_arr
+            for ui in range(num_ui):
+                weights_ui = features[ui, num_ui:].toarray().T[:, 0]
+                emb_arr = weights_ui.dot(feature_embedding)
+                bias_arr = weights_ui.dot(feature_biases)
+                return_embeddings[ui] += emb_arr
+                return_biases[ui] += bias_arr
                 
             if instance == 'user':
                 return np.concatenate((return_embeddings, return_biases.reshape(num_ui, 1), np.ones((num_ui, 1))), axis=1).copy()
