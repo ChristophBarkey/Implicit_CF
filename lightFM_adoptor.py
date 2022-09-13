@@ -53,12 +53,15 @@ class LightFMAdaptor(MatrixFactorizationBase):
             feature_embedding = embeddings[num_ui:].copy()
             return_biases = biases[:num_ui].copy()
             feature_biases = biases[num_ui:].copy()
-            weights_u = features[0, num_ui:].toarray().T
+            
             for u in range(num_ui):
-                embedding_add = [weights_u[i] * feature_embedding[i] for i in range(num_features)]
-                emb_arr = np.array(embedding_add).sum(axis=0)
-                biases_add = [weights_u[i] * feature_biases[i] for i in range(num_features)]
-                bias_arr = np.array(biases_add).sum(axis=0)
+                weights_u = features[u, num_ui:].toarray().T[:, 0]
+                #embedding_add = [weights_u[i] * feature_embedding[i] for i in range(num_features)]
+                #emb_arr = np.array(embedding_add).sum(axis=0)
+                emb_arr = weights_u.dot(feature_embedding)
+                #biases_add = [weights_u[i] * feature_biases[i] for i in range(num_features)]
+                #bias_arr = np.array(biases_add).sum(axis=0)
+                bias_arr = weights_u.dot(feature_biases)
                 return_embeddings[u] += emb_arr
                 return_biases[u] += bias_arr
                 
