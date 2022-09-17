@@ -269,7 +269,7 @@ class DataPreparation:
         user_features_temp['item_count'] = user_features_temp.item_count.fillna(0)
         col = user_features_temp.item_count
         bins = [col.min(), np.percentile(col, 25), np.percentile(col, 50), np.percentile(col, 75), col.max()]
-        names = ['1', '2', '3', '4']
+        names = ['low', 'mid', 'high', 'extr']
         user_features_temp['dealer_size'] = pd.cut(user_features_temp['item_count'], bins=bins, labels=names)
         return user_features_temp
 
@@ -278,7 +278,7 @@ class DataPreparation:
         skus_temp['comparative_planning_score'] = skus_temp.comparative_planning_score.fillna(0)
         col = skus_temp.comparative_planning_score
         bins = [col.min(), np.percentile(col, 25), np.percentile(col, 50), np.percentile(col, 75), col.max()]
-        names = ['1', '2', '3', '4']
+        names = ['low', 'mid', 'high', 'extr']
         skus_temp['cps_category'] = pd.cut(skus_temp['comparative_planning_score'], bins=bins, labels=names)
         return skus_temp
 
