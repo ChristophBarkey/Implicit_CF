@@ -171,6 +171,7 @@ class DataPreparation:
         """
         if OEM == 'AGCO':
             items_file = pd.read_csv('items_agco_new.csv', sep='|')
+            items_file = items_file[items_file.entity_id == 5]
             skus_file = pd.read_csv('skus_agco_new.csv', sep='|', low_memory=False)
             skus_file = self._map_cps(skus_file)
         if OEM == 'TEREX':
@@ -191,9 +192,9 @@ class DataPreparation:
     def _aggregate_features(self, features_file, features, instance):   
         for feature in features:
             if instance == 'user':
-                uif_temp = features_file[['dealer', feature]].dropna().set_index('dealer')
+                uif_temp = features_file[['dealer', feature]].dropna().drop_duplicates(['dealer', feature]).set_index('dealer')
             if instance == 'item':
-                uif_temp = features_file[['item', feature]].dropna().set_index('item')
+                uif_temp = features_file[['item', feature]].dropna().drop_duplicates(['item', feature]).set_index('item')
             
             ui_features = self._gather_features(uif_temp)
 
