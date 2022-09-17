@@ -72,7 +72,7 @@ class DataPreparation:
         return (interactions_csr, weights_csr)
 
 
-    def get_feature_data(self, OEM='TEREX', user_features=None, item_features=None):
+    def get_feature_data(self, OEM, user_features=None, item_features=None):
         """"
         Parameters
         ----------
