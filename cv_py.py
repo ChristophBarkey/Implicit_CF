@@ -175,7 +175,7 @@ class CrossValidation:
 
     
 
-    def evaluate_model(self, model, train, test, k, exclude=None):
+    def evaluate_model(self, model, train, test, k, exclude=None, mpr=True):
         """" Evaluation Function
 
         Wrapper function including the ranking_at_k_metrics and the MPR metric, returning one frame with all metrics
@@ -211,8 +211,9 @@ class CrossValidation:
         metrics = ranking_metrics_at_k(model, disregard_obs, test, K=k, show_progress=False)
        
         #mpr = self.calc_mpr(model, train, test)
-        mpr = self.mpr_new(model, disregard_obs, test)
-        metrics.update(mpr)
+        if mpr:
+            mpr = self.mpr_new(model, disregard_obs, test)
+            metrics.update(mpr)
         return pd.DataFrame(metrics, index=['metrics@'+str(k)])  
    
     def split_k_fold(self, user_item, seed) :
@@ -248,7 +249,7 @@ class CrossValidation:
 
 
         # WICHTIG: hier test, train sind dicts. Output von split_k_fold()
-    def k_fold_eval(self, test, train, exclude, r, model_class, seed, return_type, user_features=None, item_features=None) :
+    def k_fold_eval(self, test, train, exclude, r, model_class, seed, return_type, user_features=None, item_features=None, mpr=True) :
         """" K-fold evaluation
 
         Function to evaluate one model with given parameter combination k times, applying the k-fold crossvalidation
@@ -307,7 +308,7 @@ class CrossValidation:
                     print(r)
 
             # after fitting the model, it is evaluated. Using k=10 as default for ranking_matrics_at_k
-            m = self.evaluate_model(model, train_temp, test_temp, 10, exclude)
+            m = self.evaluate_model(model, train_temp, test_temp, 10, exclude, mpr)
             if i == 0:
                 df = m
             else :
@@ -317,7 +318,7 @@ class CrossValidation:
         if return_type == 'mean':
             return df.mean().to_frame().T
 
-    def hyperp_tuning(self, test, train, exclude, seed, param_space, model_class, return_type='mean', user_features=None, item_features=None):
+    def hyperp_tuning(self, test, train, exclude, seed, param_space, model_class, return_type='mean', user_features=None, item_features=None, mpr=True):
         """" Hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is then evaluated using k-fold CV
@@ -370,7 +371,7 @@ class CrossValidation:
             
             #evaluate model on k train/test dicts with k_fold_eval method
             res = self.k_fold_eval(test, train, exclude, r, model_class, seed, return_type=return_type, 
-            user_features=user_features, item_features=item_features)
+            user_features=user_features, item_features=item_features, mpr=mpr)
 
             #create final frame in the first iter
             if first_iter == True:
@@ -390,7 +391,7 @@ class CrossValidation:
         return ret
 
     def hyperp_tuning_simple(self, test, train, seed, param_space, model_class, user_features=None, item_features=None, eval_k=10, no_weights=False,
-    exclude=None):
+    exclude=None, mpr=True):
         """" Simplified hyperparameter tuning method for implicit models
 
         Function to evaluate one model class for a given parameter space. Each model is only evaluatd once on a test set
@@ -457,7 +458,7 @@ class CrossValidation:
                     model.item_factors[np.isnan(model.item_factors)] = 0
                     print(r)
 
-            res = self.evaluate_model(model, train, test, eval_k, exclude)
+            res = self.evaluate_model(model, train, test, eval_k, exclude, mpr)
 
             #create final frame in the first iter
             if first_iter == True:
