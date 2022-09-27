@@ -10,7 +10,7 @@ class LightFMAdaptor(MatrixFactorizationBase):
 
         # create a LightFM model using the supplied parameters
         from lightfm import LightFM
-        self.model = LightFM(*args, **kwargs)
+        self.model = LightFM(random_state=random_state, *args, **kwargs)
         self.iterations = iterations
         self.num_threads = num_threads or multiprocessing.cpu_count()
         self.random_state = random_state
