@@ -5,14 +5,14 @@ import multiprocessing
 from implicit.cpu.matrix_factorization_base import MatrixFactorizationBase
 
 class LightFMAdaptor(MatrixFactorizationBase):
-    def __init__(self, iterations=1, num_threads=1, random_state=22, *args, **kwargs):
+    def __init__(self, iterations=1, random_state=22, *args, **kwargs):
         super(LightFMAdaptor, self).__init__()
 
         # create a LightFM model using the supplied parameters
         from lightfm import LightFM
         self.model = LightFM(random_state=random_state, *args, **kwargs)
         self.iterations = iterations
-        self.num_threads = num_threads
+        self.num_threads = 1
         self.random_state = random_state
 
 
