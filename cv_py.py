@@ -545,7 +545,7 @@ class CrossValidation:
 
         if model_class == 'FM':
             model = LightFMAdaptor(no_components=p['factors'], learning_rate=p['learning_rate'], loss=p['loss'], item_alpha=p['regularization'], 
-            user_alpha=p['regularization'], max_sampled=p['max_sampled'], iterations=p['iterations'], num_threads=1, random_state=seed)
+            user_alpha=p['regularization'], max_sampled=p['max_sampled'], iterations=p['iterations'], random_state=seed)
         
         return model
 
