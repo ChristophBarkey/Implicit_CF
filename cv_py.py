@@ -488,6 +488,40 @@ class CrossValidation:
                 res_df = pd.concat([res_df, eval_df], axis=0)       
         return res_df 
 
+    def evaluate_at_k_new(self, param_space, model_class, train, test, max_k, user_features=None, item_features=None):
+        keys, values = zip(*param_space.items())
+
+        # result is a list of dicts, each dict is one parameter combination
+        result = [dict(zip(keys, p)) for p in product(*values)]
+
+        #iterate through all param combinations
+        r = result[0]
+
+        model = self.get_model(r, model_class, seed=22)
+
+        if model_class == 'FM':
+            model.fit(train.sign(), user_features, item_features, train, show_progress=False)
+
+        else:
+            try:
+                model.fit(train, show_progress=False)
+            
+            # if Nan appears in factors, they are transformed to 0 and the param combination printed out
+            except:
+                model.user_factors[np.isnan(model.user_factors)] = 0
+                model.item_factors[np.isnan(model.item_factors)] = 0
+                print(r)
+
+        for k in range(max_k):
+            eval_df = self.evaluate_model(model, train, test, k+1)
+            eval_df.index = [k+1]
+            if k == 0:
+                res_df = eval_df
+            else:
+                res_df = pd.concat([res_df, eval_df], axis=0)       
+        return res_df 
+
+
 
     def tune_FM(self, space, user_f, item_f, uf_names, if_names, train, test, exclude):
 
