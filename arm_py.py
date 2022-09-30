@@ -3,9 +3,20 @@ import pandas as pd
 import numpy as np
 from apyori import apriori
 
-def arm_data_import():
-    transactions_t = pd.read_csv('cod_terex_new.csv', sep='|', low_memory=False)
-    locations_t = pd.read_csv('loc_terex_new.csv', sep = '|', low_memory=False)
+def arm_data_import(OEM):
+    if OEM == 'AGCO':
+        agco_cod_18 = pd.read_csv('cod_agco_new_2018.csv', sep = '|', low_memory=False)
+        agco_cod_19 = pd.read_csv('cod_agco_new_2019.csv', sep = '|', low_memory=False)
+        agco_cod_20 = pd.read_csv('cod_agco_new_2020.csv', sep = '|', low_memory=False)
+        agco_cod_21 = pd.read_csv('cod_agco_new_2021.csv', sep = '|', low_memory=False)
+
+        transactions_t = pd.concat([agco_cod_18, agco_cod_19, agco_cod_20, agco_cod_21])
+        locations_t = pd.read_csv('loc_agco_new.csv', sep = '|', low_memory=False)
+
+    if OEM == 'TEREX':
+        transactions_t = pd.read_csv('cod_terex_new.csv', sep='|', low_memory=False)
+        locations_t = pd.read_csv('loc_terex_new.csv', sep = '|', low_memory=False)
+        
     orders_filtered = pd.merge(transactions_t, locations_t, left_on='supply_location_id', right_on='location_id', how='inner')
 
     ret = orders_filtered.copy()
