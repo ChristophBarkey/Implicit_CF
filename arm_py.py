@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from apyori import apriori
+from arm_evaluation_py import precision_per_u
 
 def arm_data_import(OEM):
     if OEM == 'AGCO':
@@ -16,7 +17,7 @@ def arm_data_import(OEM):
     if OEM == 'TEREX':
         transactions_t = pd.read_csv('cod_terex_new.csv', sep='|', low_memory=False)
         locations_t = pd.read_csv('loc_terex_new.csv', sep = '|', low_memory=False)
-        
+
     orders_filtered = pd.merge(transactions_t, locations_t, left_on='supply_location_id', right_on='location_id', how='inner')
 
     ret = orders_filtered.copy()
@@ -38,14 +39,48 @@ class AssociationRuleMining:
         rules = self._get_rules_df(results)
         self.rules = rules
 
+    def tune_arm(self, train, test, support_list, confidence_list):
+        self.min_support = min(support_list)
+        self.min_confidence = min(confidence_list)
 
-    def get_candidates(self, train):
+        self.fit(train)
+
+        rules_temp = self.rules.copy()
+
+        first_iter = True
+        for s in support_list:
+            rules_s = rules_temp[rules_temp.supp >= s].copy()
+            for c in confidence_list:
+                rules_s_c = rules_s[rules_s.conf >= c].copy()
+
+                results_temp = self.get_candidates(train, rules_s_c)
+
+                metrics_temp = precision_per_u(results_temp, s, train, test, 'metrics')
+
+                params = {'supp': s, 'conf': c}
+                params.update(metrics_temp)
+
+                df = pd.DataFrame(params, index=[0])
+
+                if first_iter:
+                    ret = df
+                else:
+                    ret = pd.concat([ret, df], axis=0)
+        
+        return ret
+
+
+    def get_candidates(self, train, rules=None):
+
+        if rules is None:
+            rules = self.rules
 
         cod = train[['user', 'item_id']].drop_duplicates()
 
+
         # cod containing user column and item column
-        test_base = self._unfreeze(self.rules.base).reset_index(drop=True)
-        test_add = self._unfreeze(self.rules['add']).reset_index(drop=True)
+        test_base = self._unfreeze(rules.base).reset_index(drop=True)
+        test_add = self._unfreeze(rules['add']).reset_index(drop=True)
 
         return_dict = {}
         for u in cod.user.unique():
