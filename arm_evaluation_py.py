@@ -82,6 +82,6 @@ def precision_per_u(results, model, train, test, return_type='df'):
         return ret
     if return_type == 'metrics':
         p = ret.precision.mean()
-        return {'precision': p, 'num_recs': num_recs}
+        return {'precision': p, 'num_recs': len(recos)}
 
 
