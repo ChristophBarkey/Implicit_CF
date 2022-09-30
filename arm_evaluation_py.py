@@ -31,7 +31,7 @@ def filter_test_data(train, test):
 
 
 def filter_min_training_lines(train, test, arm_model):
-    num_training_lines_all = train.groupby('item_id')[['user']].count().reset_index()
+    num_training_lines_all = train.groupby('item_id')[['requested_quantity']].count().reset_index()
     min_training_lines = arm_model.min_support * train.co_id.nunique()
     test_users = test.user.unique()
     for u in test_users:
