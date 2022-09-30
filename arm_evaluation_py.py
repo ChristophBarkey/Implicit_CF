@@ -30,9 +30,9 @@ def filter_test_data(train, test):
     return test_df
 
 
-def filter_min_training_lines(train, test, arm_model):
+def filter_min_training_lines(train, test, min_supp):
     num_training_lines_all = train.groupby('item_id')[['user']].count().reset_index()
-    min_training_lines = arm_model.min_support * train.co_id.nunique()
+    min_training_lines = min_supp * train.co_id.nunique()
     test_users = test.test_user.unique()
     for u in test_users:
         test_subset = test[test.test_user == u]
@@ -62,9 +62,9 @@ def prepare_recos(results):
 
 
 
-def precision_per_u(results, model, train, test, return_type='df'):
+def precision_per_u(results, min_supp, train, test, return_type='df'):
     recos = prepare_recos(results)
-    test_reduced = filter_min_training_lines(train, test, model)
+    test_reduced = filter_min_training_lines(train, test, min_supp)
     precision_per_u = []
     user_u = []
     for u in recos.user.unique():
