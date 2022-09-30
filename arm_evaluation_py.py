@@ -57,7 +57,7 @@ def prepare_recos(results):
                 dealers_list.append(d)
                 recos_list.append(i)
     recos_df = pd.DataFrame({'user' : dealers_list, 'item' : recos_list})
-    print('Generated recommendations: ' + str(len(recos_df)))
+    #print('Generated recommendations: ' + str(len(recos_df)))
     return recos_df
 
 
