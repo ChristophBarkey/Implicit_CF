@@ -36,7 +36,7 @@ def filter_min_training_lines(train, test, arm_model):
     test_users = test.user.unique()
     for u in test_users:
         test_subset = test[test.user == u]
-        training_lines_per_item = pd.merge(test_subset, num_training_lines_all, left_on='test_items', right_on='item_id', how='inner')
+        training_lines_per_item = pd.merge(test_subset, num_training_lines_all, left_on='item_id', right_on='item_id', how='inner')
         filtered_items = training_lines_per_item[training_lines_per_item.user > min_training_lines]
         if len(filtered_items) > 0:
             if u == test_users[0]:
