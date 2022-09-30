@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from apyori import apriori
 
-def arm_dataprep():
+def arm_data_import():
     transactions_t = pd.read_csv('cod_terex_new.csv', sep='|', low_memory=False)
     locations_t = pd.read_csv('loc_terex_new.csv', sep = '|', low_memory=False)
     orders_filtered = pd.merge(transactions_t, locations_t, left_on='supply_location_id', right_on='location_id', how='inner')
@@ -12,11 +12,7 @@ def arm_dataprep():
     duplicate_co_id = ret.co_id.value_counts() > 1
     ret_filtered = ret[ret.co_id.isin(duplicate_co_id[duplicate_co_id].index)]
 
-    transaction_list = list(ret_filtered.groupby('co_id')['item_id'].apply(list))
-
-    user_item = orders_filtered[['user', 'item_id']]
-
-    return (transaction_list, user_item)
+    return ret_filtered
 
 class AssociationRuleMining:
 
@@ -25,13 +21,16 @@ class AssociationRuleMining:
         self.min_confidence = min_confidence
         self.rules = None
 
-    def fit(self, transaction_list):
+    def fit(self, train):
+        transaction_list = list(train.groupby('co_id')['item_id'].apply(list))
         results = list(apriori(transactions=transaction_list, min_support=self.min_support, min_confidence=self.min_confidence))
         rules = self._get_rules_df(results)
         self.rules = rules
 
 
-    def get_candidates(self, cod):
+    def get_candidates(self, train):
+
+        cod = train[['user', 'item_id']].drop_duplicates()
 
         # cod containing user column and item column
         test_base = self._unfreeze(self.rules.base).reset_index(drop=True)
