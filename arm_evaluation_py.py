@@ -33,7 +33,7 @@ def filter_test_data(train, test):
 def filter_min_training_lines(train, test, arm_model):
     num_training_lines_all = train.groupby('item_id')[['user']].count().reset_index()
     min_training_lines = arm_model.min_support * train.co_id.nunique()
-    test_users = test.test_user.unique()
+    test_users = test.user.unique()
     for u in test_users:
         test_subset = test[test.test_user == u]
         training_lines_per_item = pd.merge(test_subset, num_training_lines_all, left_on='test_items', right_on='item_id', how='inner')
