@@ -64,6 +64,7 @@ class AssociationRuleMining:
 
                 if first_iter:
                     ret = df
+                    first_iter = False
                 else:
                     ret = pd.concat([ret, df], axis=0)
         
