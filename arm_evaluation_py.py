@@ -34,16 +34,15 @@ def filter_min_training_lines(train, test, min_supp):
     num_training_lines_all = train.groupby('item_id')[['user']].count().reset_index()
     min_training_lines = min_supp * train.co_id.nunique()
     test_users = test.test_user.unique()
+    ret_list = []
     for u in test_users:
         test_subset = test[test.test_user == u]
         training_lines_per_item = pd.merge(test_subset, num_training_lines_all, left_on='test_items', right_on='item_id', how='inner')
         filtered_items = training_lines_per_item[training_lines_per_item.user > min_training_lines]
         if len(filtered_items) > 0:
-            if u == test_users[0]:
-                ret = filtered_items
-            else:
-                ret = pd.concat([ret, filtered_items], axis=0)
-    if len(ret) > 0:
+            ret_list.append(filtered_items)
+    if len(ret_list) > 0:
+        ret = pd.concat(ret_list, ignore_index=True)
         return ret
     else:
         return 'No test items with sufficient training observations found. Try increasing min_supp.'
