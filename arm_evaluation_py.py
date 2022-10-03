@@ -43,8 +43,10 @@ def filter_min_training_lines(train, test, min_supp):
                 ret = filtered_items
             else:
                 ret = pd.concat([ret, filtered_items], axis=0)
-    return ret
-
+    if len(ret) > 0:
+        return ret
+    else:
+        return 'No test items with sufficient training observations found. Try increasing min_supp.'
 
 def prepare_recos(results):
     dealers = results.keys()
@@ -65,6 +67,9 @@ def prepare_recos(results):
 def precision_per_u(results, min_supp, train, test, return_type='df'):
     recos = prepare_recos(results)
     test_reduced = filter_min_training_lines(train, test, min_supp)
+    if isinstance(test_reduced, str):
+        print(test_reduced)
+        return test_reduced
     precision_per_u = []
     user_u = []
     for u in recos.user.unique():
