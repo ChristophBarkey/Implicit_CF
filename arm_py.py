@@ -37,7 +37,7 @@ class AssociationRuleMining:
         transaction_list = list(train.groupby('co_id')['item_id'].apply(list))
         results = list(apriori(transactions=transaction_list, min_support=self.min_support, min_confidence=self.min_confidence))
         rules = self._get_rules_df(results)
-        self.rules = rules
+        self.rules = rules.copy()
 
     def tune_arm(self, train, test, support_list, confidence_list):
         self.min_support = min(support_list)
@@ -88,6 +88,9 @@ class AssociationRuleMining:
             items_u = cod[cod.user == u][['item_id']].drop_duplicates()
 
             inside_mask = self._isin_base(test_base.unfrozen, items_u.item_id)
+            if len(inside_mask) == 0:
+                continue
+            
             df_inside = test_add[inside_mask].reset_index(drop=True)
 
             df_inside_unlisted = self._unlist_df(df_inside.unfrozen)
