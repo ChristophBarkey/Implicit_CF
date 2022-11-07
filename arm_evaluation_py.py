@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 #from arm_py import AssociationRuleMining, arm_dataprep
+#class containing evaluation function for ARM model, no need of creating a class instance first!
 
 
 
