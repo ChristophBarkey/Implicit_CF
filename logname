@@ -1,0 +1,25 @@
+14:00:45,957 numexpr.utils INFO NumExpr defaulting to 8 threads.
+14:02:21,376 implicit INFO Final training loss 0.0002
+14:03:18,537 implicit INFO Final training loss 0.0002
+14:06:01,925 logname INFO logging msg
+17:47:31,10 implicit INFO loss 0.0002
+17:47:31,55 implicit INFO loss 0.0002
+17:47:31,91 implicit INFO loss 0.0002
+17:47:31,124 implicit INFO loss 0.0002
+17:47:31,151 implicit INFO loss 0.0002
+17:47:31,180 implicit INFO loss 0.0002
+17:47:31,210 implicit INFO loss 0.0002
+17:47:31,239 implicit INFO loss 0.0002
+17:47:31,267 implicit INFO loss 0.0002
+17:47:31,298 implicit INFO loss 0.0002
+17:47:31,325 implicit INFO loss 0.0002
+17:47:31,351 implicit INFO loss 0.0002
+17:47:31,379 implicit INFO loss 0.0002
+17:47:31,410 implicit INFO loss 0.0002
+17:47:31,436 implicit INFO loss 0.0002
+17:47:31,436 implicit INFO Final training loss 0.0002
+17:47:36,90 implicit INFO Final training loss 0.0002
+17:56:38,364 root INFO logging msg
+18:06:11,950 implicit INFO Final training loss 0.0002
+18:30:39,802 implicit INFO Final training loss 0.0002
+18:33:48,763 implicit INFO Final training loss 0.0001
