@@ -1,10 +1,12 @@
 # %%
-import numpy as np
 import multiprocessing
 
 from implicit.cpu.matrix_factorization_base import MatrixFactorizationBase
 
 class eALSAdaptor(MatrixFactorizationBase):
+
+    # Class with functions, that wraps a model of the class implicit around an eals model. 
+    # This allows for the eals model to be evaluated with functions of the implicit class 
     def __init__(self, num_threads=0, *args, **kwargs):
         super(eALSAdaptor, self).__init__()
 
