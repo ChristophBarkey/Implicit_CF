@@ -1,8 +1,7 @@
 # %%
 import pandas as pd
 import numpy as np
-from pyrsistent import v
-from scipy.sparse import coo_matrix, csr_matrix
+from scipy.sparse import coo_matrix
 
 
 class DataLoader:
@@ -32,7 +31,6 @@ class DataLoader:
         user_item_data : dataframe or csr_matrix
             user item data according to input parameters
         """
-        #import pandas as pd
  
         if OEM == 'AGCO':
 
@@ -109,15 +107,6 @@ class DataLoader:
         ret = df.copy()
         ret['purchases'] = alpha * np.log(1 + (df.purchases/epsilon))
         return ret
-
-    # function to merge co and po data. if user/item appears in both files, the max purchase is considered, else a full join
-    #def merge_co_po(self, co, po):
-    #    full = pd.merge(co, po, on=['item', 'user'], how='outer')
-    #    full = full.fillna(0)
-    #    full['max'] = full[['purchases_x', 'purchases_y']].max(axis=1)
-    #    ret = full[['user', 'item', 'max']]
-    #    ret.columns =  ['user', 'item', 'purchases']
-    #    return ret
 
     # function to transform the output df of import_agco to a csr matrix
     def to_csr(self, df):
