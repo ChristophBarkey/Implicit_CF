@@ -18,6 +18,7 @@ class EDA:
 
     def get_user_per_item_frame(self, user_item_co, user_item_po):
         """" Function to get user per item info and vice versa for two user item matrices
+        Initially used for comparing CO and PO, but also for CO of OEM1 and OEM2
 
         Parameters
         ----------
@@ -43,6 +44,7 @@ class EDA:
 
     def get_basic_user_item_info(self, user_item_co, user_item_po):
         """" Function to get basic information about two user item matrices
+        Initially used for comparing CO and PO, but also for CO of OEM1 and OEM2
 
         Parameters
         ----------
@@ -152,8 +154,6 @@ class EDA:
 
         if save:
             plt.savefig('histogram_co.pdf', bbox_inches='tight')
-            
-        # Show plot
 
         plt.show()
 
