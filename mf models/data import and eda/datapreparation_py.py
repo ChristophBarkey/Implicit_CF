@@ -7,18 +7,7 @@ from scipy.sparse import coo_matrix
 
 class DataPreparation:
 
-    #def __init__(self, user_item):
-    #    """"
-    #    Parameters
-    #    ----------
-    #    user_item : Pandas Dataframe
-    #        Dataframe with the columns ['user', 'item', 'purchases'] 
-    #        Containing the user-item interactions
-    #    """
-    #    self.user_item = user_item
-
-
-    # NEW TEST
+    # Class with functions to prepare the data for the lightFM model specifically 
     def __init__(self, user_item):
         """"
         Parameters
@@ -30,7 +19,7 @@ class DataPreparation:
 
         Attributes
         ----------
-        user_ite_full : Pandas df
+        user_item_full : Pandas df
             user_item df extended with extra columns being user_codes and item_codes.
             These codes are used for generating csr interaction matrix.
             Also used to get the correct user and item order as used in the csr data.
@@ -105,40 +94,6 @@ class DataPreparation:
 
         return return_list
 
-    # OLD METHOD --> USE get_interaction_data + get_feature_data
-    #def get_input_data(self, OEM, user_features=None, item_features=None):
-    #    """" Function to get the input data for a LightFM model
-    #    Parameters
-    #    ----------
-    #    user_features : list, optional
-    #        list of user features to include.
-    #        Must be of ['country', 'brand', 'currency']
-    #    item_features : list, optional
-    #        list of item_features to include
-    #        Must be of ['group2', 'movement_code', 'cost_class']
-    #    Returns
-    #    -------
-    #    (interactions, weights, user_features) : tuple(coo_matrix, coo_matrix, csr_matrix)
-    #        Data prepared for input for LightFM model
-    #    """
-
-    #    dataset_t = Dataset()
-    #    dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique())
-
-    #    interactions_matrix, weights_matrix = dataset_t.build_interactions([tuple(i) for i in self.user_item.values])
-
-    #    return_list = [interactions_matrix, weights_matrix]
-        
-    #    if user_features is not None:
-    #        user_features_sp = self._get_user_features(OEM, user_features)
-    #        return_list.append(user_features_sp)
-
-    #    if item_features is not None:
-    #        item_features_sp = self._get_item_features(OEM, item_features)
-    #        return_list.append(item_features_sp)
-
-    #    return return_list
-
 
     def _get_user_features(self, OEM, features):
         """" Helper function to get the user_feature values and the user_feature list
@@ -203,18 +158,14 @@ class DataPreparation:
             dataset_t = Dataset()
             
             if instance == 'user':
-                # old version: users and items as in file. But different order as in csr interaction matrix!
-                #dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), user_features = ui_features)
 
-                # users and items orderd as in interaction data, as these are used for index mapping for feature matrices
+                # users and items ordered as in interaction data, as these are used for index mapping for feature matrices
                 dataset_t.fit(self.users, self.items, user_features = ui_features)
                 ui_features_sp = dataset_t.build_user_features(ui_tuple, normalize=False)
             
             if instance == 'item':
-                # old version: users and items as in file. But different order as in csr interaction matrix!
-                #dataset_t.fit(self.user_item.user.unique(), self.user_item.item.unique(), item_features = ui_features)
 
-                # users and items orderd as in interaction data, as these are used for index mapping for feature matrices
+                # users and items ordered as in interaction data, as these are used for index mapping for feature matrices
                 dataset_t.fit(self.users, self.items, item_features = ui_features)
                 ui_features_sp = dataset_t.build_item_features(ui_tuple, normalize=False)
 
@@ -226,7 +177,8 @@ class DataPreparation:
             else:
                 ui_features_sp_ret = self._add_csr(ui_features_sp_ret, ui_features_sp_norm)
         return ui_features_sp_ret
-    
+
+    # utility function to prepare feature data
     def _gather_features(self, feature_file):
         features = []
         for c in feature_file.columns:
@@ -235,6 +187,7 @@ class DataPreparation:
                 features.append(v)
         return features
 
+    # utility function to prepare feature data
     def _get_feature_tuple(self, feature_file):
         feature_list = []
         for i in range(len(feature_file)):
@@ -242,6 +195,7 @@ class DataPreparation:
         feature_tuple = list(zip(feature_file.index, feature_list))   
         return feature_tuple
 
+    # utility function to prepare feature data
     def _normalize(self, csr):
         lil = csr.tolil()
         for i in range(csr.shape[0]):
@@ -253,17 +207,14 @@ class DataPreparation:
             lil[i, csr.shape[0]:] = norm_array
         return lil.tocsr()
 
+    # utility function to concatenate feature matrix to interaction matrix
     def _add_csr(self, csr, add):
         num_identity = csr.shape[0]
         features_only = add[:, num_identity:]
         csr_ret = sparse.hstack((csr, features_only), format='csr')
-        #for i in range((add.shape[1]-add.shape[0])):
-         #   if i == 0:
-          #      csr_ret = sparse.hstack((csr, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
-           # else:
-            #    csr_ret = sparse.hstack((csr_ret, add[:,(add.shape[0]+i)].A.T[0][:,None]), format='csr')
         return csr_ret
 
+    # utility function to bin feature dealer_size into categories
     def _map_dealer_size(self, user_features):
         user_features_temp = user_features.copy()
         user_features_temp['item_count'] = user_features_temp.item_count.fillna(0)
@@ -273,6 +224,7 @@ class DataPreparation:
         user_features_temp['dealer_size'] = pd.cut(user_features_temp['item_count'], bins=bins, labels=names)
         return user_features_temp
 
+    # utility function to bin feature cps into categories
     def _map_cps(self, skus):
         skus_temp = skus.copy()
         skus_temp['comparative_planning_score'] = skus_temp.comparative_planning_score.fillna(0)
