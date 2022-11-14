@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 class Visualize:
 
+    # Class containing function to plot specific results
     def __init__(self, style):
         if style == 'seaborn':
             plt.style.use('seaborn-whitegrid')
@@ -16,7 +17,8 @@ class Visualize:
             plt.style.use(['science', 'ieee', 'high-vis'])
 
 
-
+    # Function to plot heatmap of results of hyperparameter tuning
+    # NOT USED IN THESIS, NOT DEVELOPED COMPLETELY
     def get_heatmap(self, result_frame, model_class, save=False):
         if model_class == 'iALS':
             ind = 'alpha'
@@ -95,10 +97,9 @@ class Visualize:
 
         plt.show()
 
-
+    # Function to plot the tuning results regarding factors and iterations
     def get_convergence_curves(self, result_frame, save=False):
     
-
         # data preparation
         p_df = result_frame.pivot(index='iterations', columns='factors', values='precision')
         map_df = result_frame.pivot(index='iterations', columns='factors', values='map')
@@ -129,6 +130,7 @@ class Visualize:
         plt.show()
 
 
+    # Function to plot final model comparison
     def get_comparison_curves(self, precision_df, map_df, ndcg_df, save=False):
 
         data_df = [precision_df, map_df, ndcg_df]
