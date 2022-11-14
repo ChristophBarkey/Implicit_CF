@@ -5,7 +5,7 @@ import numpy as np
 #class containing evaluation function for ARM model, no need of creating a class instance first!
 
 
-
+# Function to split ARM data at specific data and prepare test data
 def train_test_split_arm(data, split_date):
     train = data[data.create_date <= split_date]
     test = data[data.create_date > split_date]
@@ -14,7 +14,7 @@ def train_test_split_arm(data, split_date):
     return (train, test_filtered)
 
 
-
+# Function to prepare test data, by filtering out transactions that are not appropriate
 def filter_test_data(train, test):
     dealers = pd.concat([train, test], axis=0).user.unique()
     test_items_list = []
@@ -31,6 +31,7 @@ def filter_test_data(train, test):
     return test_df
 
 
+# filter test set, for items that have been bought sufficently in the training period
 def filter_min_training_lines(train, test, min_supp):
     num_training_lines_all = train.groupby('item_id')[['user']].count().reset_index()
     min_training_lines = min_supp * train.co_id.nunique()
@@ -48,6 +49,8 @@ def filter_min_training_lines(train, test, min_supp):
     else:
         return 'No test items with sufficient training observations found. Try increasing min_supp.'
 
+
+# Utility function to prepare the recommendations from dict to df
 def prepare_recos(results):
     dealers = results.keys()
     dealers_list = []
@@ -63,7 +66,7 @@ def prepare_recos(results):
     return recos_df
 
 
-
+# Evaluation function, computing the hit rate or precision_per_user
 def precision_per_u(results, min_supp, train, test, return_type='df'):
     recos = prepare_recos(results)
     test_reduced = filter_min_training_lines(train, test, min_supp)
