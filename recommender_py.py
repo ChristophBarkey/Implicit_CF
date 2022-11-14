@@ -14,9 +14,11 @@ from scipy.sparse import coo_matrix, csr_matrix
 
 class Recommender:
 
+    # Class to generate recommendations based on a fitted model
     def __init__(self):
         pass
 
+    # Function to generate item recommendations based on fitted model and mapping table
     def get_recommendations(self, model, user_item_csr, user_item_full):
         recoms_t = model.recommend(userid=pd.Series(user_item_csr.tocoo().row).unique(), user_items=user_item_csr)
 
@@ -31,6 +33,8 @@ class Recommender:
                 ret_df = pd.concat([ret_df, df], axis=0)
         return ret_df
     
+    # Compare how many overlapping recommendations there are for models of OEM2
+    # NOT DEVELOPED COMPLETELY!
     def get_common_recos_t(self, recos_ials_t, recos_eals_t, recos_cosine_t):
         all_three = []
         ials_eals = []
@@ -50,6 +54,8 @@ class Recommender:
         common_recos_df = pd.DataFrame({'all three' : all_three, 'ials & eals' : ials_eals, 'ials & cosi' : ials_cosi, 'eals & cosi' : eals_cosi}, index=recos_ials_t.index)
         return common_recos_df
 
+    # Compare how many overlapping recommendations there are for models of OEM1
+    # NOT DEVELOPED COMPLETELY!
     def get_common_recos_a(self, recos_ials_a, recos_bpr_a, recos_lmf_a, recos_cosine_a):
         all_four = []
 
