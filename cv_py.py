@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 from implicit.evaluation import train_test_split, ranking_metrics_at_k
 import implicit
-from mf_models.adaptor_classes.eALS_adaptor import eALSAdaptor
-from mf_models.adaptor_classes.lightFM_adoptor import LightFMAdaptor
+from eALS_adaptor import eALSAdaptor
+from lightFM_adoptor import LightFMAdaptor
 from itertools import product
 
 
