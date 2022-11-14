@@ -4,6 +4,7 @@ import numpy as np
 from apyori import apriori
 from arm_evaluation_py import precision_per_u
 
+# function to load the data of OEMs
 def arm_data_import(OEM):
     if OEM == 'AGCO':
         agco_cod_18 = pd.read_csv('cod_agco_new_2018.csv', sep = '|', low_memory=False)
@@ -28,17 +29,22 @@ def arm_data_import(OEM):
 
 class AssociationRuleMining:
 
+
+    # Class for tuning ARM model
     def __init__(self, min_support=0.1, min_confidence=0.0):
         self.min_support = min_support
         self.min_confidence = min_confidence
         self.rules = None
 
+    # fitting method, invoking the Apriori algorithm
     def fit(self, train):
         transaction_list = list(train.groupby('co_id')['item_id'].apply(list))
         results = list(apriori(transactions=transaction_list, min_support=self.min_support, min_confidence=self.min_confidence))
         rules = self._get_rules_df(results)
         self.rules = rules.copy()
 
+    # tuning method, fitting the model with lowest parameters
+    # than evaluating for all thresholds, invoking precision_per_u for metric computation
     def tune_arm(self, train, test, support_list, confidence_list):
         self.min_support = min(support_list)
         self.min_confidence = min(confidence_list)
@@ -71,6 +77,7 @@ class AssociationRuleMining:
         return ret
 
 
+    # utility function to get recommended items from association rules
     def get_candidates(self, train, rules=None):
 
         if rules is None:
@@ -100,6 +107,9 @@ class AssociationRuleMining:
             return_dict.update({u : list(df_outside.unlisted.values)})
 
         return return_dict
+
+
+    # Helperfunctions:    
 
     def _unfreeze(self, frozen):
         unfrozen_1 = []
